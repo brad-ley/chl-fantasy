@@ -1,9 +1,16 @@
 import discord
-from discord.ext import commands
 import os
+from discord.ext import commands, tasks
 
 client = commands.Bot(command_prefix="!")
 token = os.getenv("DISCORD_BOT_TOKEN")
+
+
+@tasks.loop(minutes=1)
+async def task(self):
+    if int(datetime.now().minute) % 2 == 0:
+        await ctx.send(f"The minute is now even.")
+
 
 @client.event
 async def on_ready():

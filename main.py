@@ -324,9 +324,13 @@ async def addplayer(ctx, arg1, arg2):
                                     )
                             else:
                                 await ctx.send(f"Cancelled")
+                    else:
+                        await ctx.send(
+                                f"Error. Possible player {arg2} doesn't exist"
+                                )
             else:
                 await ctx.send(
-                    f"Error. Possibly team {arg1} or player {arg2} doesn't exist"
+                    f"Error. Possibly team {arg1} doesn't exist"
                 )
             cur.close()
         else:
@@ -479,9 +483,13 @@ async def removeplayer(ctx, arg1, arg2):
                                     )
                             else:
                                 await ctx.send(f"Cancelled")
+                    else:
+                        await ctx.send(
+                                f"Error. Possible player {arg2} doesn't exist"
+                                )
             else:
                 await ctx.send(
-                    f"Error. Possibly team {arg1} or player {arg2} doesn't exist"
+                    f"Error. Possibly team {arg1} doesn't exist"
                 )
             cur.close()
         else:
@@ -557,9 +565,9 @@ async def player(ctx, arg):
 
 @bot.command(pass_context=True,
              brief="(all players)",
-             name="allplayers",
-             help="Displays player (goals-assists-fantasy points)")
-async def allplayers(ctx):
+             name="players",
+             help="Displays all players (goals-assists-fantasy points)")
+async def players(ctx):
     player_stats, goalie_stats = update(testing=False)
     channel = bot.get_channel(824876222717886487)
    
@@ -582,9 +590,9 @@ async def allplayers(ctx):
 
 @bot.command(pass_context=True,
              brief="[team]",
-             name="showroster",
+             name="roster",
              help="Displays team roster of team (<arg1>)")
-async def showroster(ctx, arg):
+async def roster(ctx, arg):
     arg = arg.title()
     cur = con.cursor()
     cur.execute("select team_name, players from fantasy where team_name = %s",
@@ -611,9 +619,9 @@ async def showroster(ctx, arg):
 
 @bot.command(pass_context=True,
              brief="(all rosters)",
-             name="showrosters",
+             name="rosters",
              help="Displays team rosters")
-async def showrosters(ctx):
+async def rosters(ctx):
     cur = con.cursor()
     cur.execute("select team_name, players from fantasy")
     vals = cur.fetchall() 

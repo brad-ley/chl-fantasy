@@ -1,5 +1,6 @@
 *.csv
 *.txt
+.todo.md
 !runtime.txt
 !requirements.txt
 **/

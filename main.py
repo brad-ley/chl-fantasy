@@ -45,7 +45,7 @@ token = os.getenv("DISCORD_BOT_TOKEN")
 
 def update(testing=False):
     cur = con.cursor()
-    data = scrape(testing=testing)
+    data, data_g = scrape(testing=testing)
     # print(data.items())
     cur.execute("insert into players (TIME, PLAYER_DATA) values (%s, %s)",
                 (int(pytz.timezone(LOCAL_TZ).localize(
@@ -77,8 +77,8 @@ def update(testing=False):
     weekrows = cur.fetchall()
 
     try:
-        newest_stats = ast.literal_eval(rows[-1][1])
-        newest_week = ast.literal_eval(weekrows[-1][1])
+        newest_player_stats = ast.literal_eval(rows[-1][1])
+        newest_player_week = ast.literal_eval(weekrows[-1][1])
         # print(newest_stats, newest_week, sep="\n")
     except Exception:
         print("No data stored yet")
@@ -86,13 +86,14 @@ def update(testing=False):
     con.commit()
     cur.close()
 
-    return newest_stats
+    # return newest_stats, newest_stats_g
+    return newest_player_stats, data_g
 
 
 @tasks.loop(minutes=60)
 # @tasks.loop(seconds=30)
 async def update_scoring():
-    stats = update(testing=False)
+    stats, stats_g = update(testing=False)
     channel = bot.get_channel(824876222717886487)
 
     # msg = ""
@@ -559,10 +560,10 @@ async def player(ctx, arg):
              name="allplayers",
              help="Displays player (goals-assists-fantasy points)")
 async def allplayers(ctx):
-    stats = update(testing=False)
+    player_stats, goalie_stats = update(testing=False)
     channel = bot.get_channel(824876222717886487)
    
-    stats_list = list(stats.items())
+    stats_list = list(player_stats.items())
     stats_list.sort(key=lambda x: x[-1]['fpts'], reverse=True)
     n = 50
     for idx, _ in enumerate(stats_list):

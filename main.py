@@ -1,13 +1,13 @@
 import ast
 import asyncio
 import os
-from datetime import datetime as dt
-
 import discord
 import psycopg2
 import pytz
-from discord.ext import commands, tasks
+import urllib.parse as urlparse
 
+from datetime import datetime as dt
+from discord.ext import commands, tasks
 from chl_scraper import scrape
 
 LOCAL_TZ = 'America/Vancouver'

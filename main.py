@@ -143,7 +143,7 @@ async def addteam(ctx, arg):
              brief="[team to remove]",
              name="removeteam",
              help="Will remove a team from the league")
-@commands.is_owner()
+# @commands.is_owner()
 async def removeteam(ctx, arg):
     if type(arg) == str:
         arg = arg.title()
@@ -181,7 +181,7 @@ async def removeteam(ctx, arg):
              brief="[team] [player]",
              name="addplayer",
              help="Adds player (<arg1>) to team (<arg2>)")
-@commands.is_owner()
+# @commands.is_owner()
 async def addplayer(ctx, arg1, arg2):
     try:
         arg1 = arg1.title()
@@ -343,7 +343,7 @@ async def addplayer(ctx, arg1, arg2):
              brief="[team] [player]",
              name="removeplayer",
              help="Removes player (<arg1>) from team (<arg2>)")
-@commands.is_owner()
+# @commands.is_owner()
 async def removeplayer(ctx, arg1, arg2):
     try:
         arg1 = arg1.title()

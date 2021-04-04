@@ -19,10 +19,20 @@ if ENV == 'dev':
                            password=os.getenv("CHL_DB_TOKEN"))
     testing = True
 else:
+    url = urlparse.urlparse(os.environ['DATABASE_URL'])
+    dbname = url.path[1:]
+    user = url.username
+    password = url.password
+    host = url.hostname
+    port = url.port
+
     con = psycopg2.connect(
-        host=os.getenv("DATABASE_URL"),
-        dbname='chl-fantasy',
-    )
+                dbname=dbname,
+                user=user,
+                password=password,
+                host=host,
+                port=port
+                )
     testing = False
 
 
@@ -203,6 +213,7 @@ async def playerpts(ctx, arg):
             val_list = list(most_recent.values())
             indices = [
                 val_list.index(ii) for ii in val_list
+
                 if arg in ii['name']
             ]
 
@@ -219,6 +230,7 @@ async def playerpts(ctx, arg):
                             f"Incorrect player ID, that player does not exist")
                 else:
                     msg = ""
+
                     for select, idx in enumerate(indices):
                         pid = id_list[idx]
                         msg += f"{most_recent[pid]['name']} ({most_recent[pid]['goals']}g-{most_recent[pid]['assists']}a-{most_recent[pid]['fpts']}fpts)\n"
@@ -288,6 +300,7 @@ async def addplayer(ctx, arg1, arg2):
                         else:
                             team_on = [
                                 ii[0].strip() for ii in fetched
+
                                 if arg2 in list(ast.literal_eval(ii[-1]))
                             ][0]
                             await ctx.send(
@@ -301,6 +314,7 @@ async def addplayer(ctx, arg1, arg2):
                     val_list = list(most_recent.values())
                     indices = [
                         val_list.index(ii) for ii in val_list
+
                         if arg2 in ii['name']
                     ]
 
@@ -331,6 +345,7 @@ async def addplayer(ctx, arg1, arg2):
                             else:
                                 team_on = [
                                     ii[0].strip() for ii in fetched
+
                                     if pid in list(ast.literal_eval(ii[-1]))
                                 ][0]
                                 await ctx.send(
@@ -366,6 +381,7 @@ async def addplayer(ctx, arg1, arg2):
                                 else:
                                     team_on = [
                                         ii[0].strip() for ii in fetched
+
                                         if id_list[indices[int(msg.content) -
                                                            1]] in
                                         list(ast.literal_eval(ii[-1]))
@@ -455,6 +471,7 @@ async def removeplayer(ctx, arg1, arg2):
                     val_list = list(most_recent.values())
                     indices = [
                         val_list.index(ii) for ii in val_list
+
                         if arg2 in ii['name']
                     ]
 
@@ -555,10 +572,13 @@ async def showroster(ctx, arg):
         "select player_data from players order by time desc limit 1"
     )
     most_recent = ast.literal_eval(cur.fetchall()[0][0])
+
     if vals:
         msg = ""
+
         for val in vals:
             msg += f"Team: {val[0]}\n\n"
+
             for player in list(ast.literal_eval(val[-1])):
                 msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']}g-{most_recent[player]['assists']}a-{most_recent[player]['fpts']}fpts)\n"
         print(msg)
@@ -579,10 +599,13 @@ async def showrosters(ctx):
         "select player_data from players order by time desc limit 1"
     )
     most_recent = ast.literal_eval(cur.fetchall()[0][0])
+
     if vals:
         msg = ""
+
         for val in vals:
             msg += f"Team: {val[0]}\n\n"
+
             for player in list(ast.literal_eval(val[-1])):
                 msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']}g-{most_recent[player]['assists']}a-{most_recent[player]['fpts']}fpts)\n"
             msg += "\n"
@@ -608,9 +631,11 @@ async def score(ctx, arg):
         "select player_data from weekly order by time desc limit 1"
     )
     recent_week = ast.literal_eval(cur.fetchall()[0][0])
+
     if vals:
         msg = ""
         score = 0
+
         for val in vals:
             for player in list(ast.literal_eval(val[-1])):
                 msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']-recent_week[player]['goals']}g-{most_recent[player]['assists']-recent_week[player]['assists']}a-{most_recent[player]['fpts']-recent_week[player]['fpts']}fpts)\n"
@@ -638,9 +663,11 @@ async def scores(ctx):
         "select player_data from weekly order by time desc limit 1"
     )
     recent_week = ast.literal_eval(cur.fetchall()[0][0])
+
     if vals:
         msg = ""
         score = 0
+
         for val in vals:
             for player in list(ast.literal_eval(val[-1])):
                 # msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']-recent_week[player]['goals']}g-{most_recent[player]['assists']-recent_week[player]['assists']}a-{most_recent[player]['fpts']-recent_week[player]['fpts']}fpts)\n"

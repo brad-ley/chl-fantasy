@@ -177,71 +177,6 @@ async def removeteam(ctx, arg):
 
 
 @bot.command(pass_context=True,
-             brief="[player]",
-             name="playerpts",
-             help="Returns fantasy points for chosen player <arg>")
-async def playerpts(ctx, arg):
-    try:
-        arg = arg.title()
-        cur = con.cursor()
-        cur.execute(
-            "select player_data from players order by time desc limit 1"
-        )
-        fetched = cur.fetchall()
-        most_recent = ast.literal_eval(fetched[0][0])
-        try:
-            arg = int(arg)
-        except ValueError:
-            pass
-
-        all_players = sum(
-            [list(ast.literal_eval(ii[0])) for ii in fetched], [])
-
-        if type(arg) == int:
-            if arg in all_players:
-                await ctx.send(
-                    f"{most_recent[arg]['name']} ({most_recent[arg]['goals']}g-{most_recent[arg]['assists']}a-{most_recent[arg]['fpts']}fpts)"
-                )
-            else:
-                await ctx.send(
-                    f"Incorrect player ID, that player does not exist")
-        else:
-            id_list = list(most_recent.keys())
-            val_list = list(most_recent.values())
-            indices = [
-                val_list.index(ii) for ii in val_list
-
-                if arg in ii['name']
-            ]
-
-            if indices:
-                if len(indices) == 1:
-                    pid = id_list[indices[0]]
-
-                    if pid in all_players:
-                        await ctx.send(
-                            f"{most_recent[pid]['name']} ({most_recent[pid]['goals']}g-{most_recent[pid]['assists']}a-{most_recent[pid]['fpts']}fpts)"
-                        )
-                    else:
-                        await ctx.send(
-                            f"Incorrect player ID, that player does not exist")
-                else:
-                    msg = ""
-
-                    for select, idx in enumerate(indices):
-                        pid = id_list[idx]
-                        msg += f"{most_recent[pid]['name']} ({most_recent[pid]['goals']}g-{most_recent[pid]['assists']}a-{most_recent[pid]['fpts']}fpts)\n"
-                    await ctx.send(msg)
-            else:
-                await ctx.send(
-                    f"Error. Possibly player {arg} doesn't exist"
-                )
-            cur.close()
-
-    except TypeError:
-        await ctx.send(f"Error with input")
-
-@bot.command(pass_context=True,
              brief="[team] [player]",
              name="addplayer",
              help="Adds player (<arg1>) to team (<arg2>)")
@@ -553,6 +488,95 @@ async def removeplayer(ctx, arg1, arg2):
     except IndexError:
         await ctx.send(
             f"Error. Possibly team {arg1} or player {arg2} doesn't exist")
+
+@bot.command(pass_context=True,
+             brief="[player]",
+             name="player",
+             help="Returns fantasy points for chosen player <arg>")
+async def player(ctx, arg):
+    try:
+        arg = arg.title()
+        cur = con.cursor()
+        cur.execute(
+            "select player_data from players order by time desc limit 1"
+        )
+        fetched = cur.fetchall()
+        most_recent = ast.literal_eval(fetched[0][0])
+        try:
+            arg = int(arg)
+        except ValueError:
+            pass
+
+        all_players = sum(
+            [list(ast.literal_eval(ii[0])) for ii in fetched], [])
+
+        if type(arg) == int:
+            if arg in all_players:
+                await ctx.send(
+                        f"{most_recent[arg]['name']} ID:{arg} ({most_recent[arg]['goals']}g-{most_recent[arg]['assists']}a-{most_recent[arg]['fpts']}fpts)"
+                )
+            else:
+                await ctx.send(
+                    f"Incorrect player ID, that player does not exist")
+        else:
+            id_list = list(most_recent.keys())
+            val_list = list(most_recent.values())
+            indices = [
+                val_list.index(ii) for ii in val_list
+
+                if arg in ii['name']
+            ]
+
+            if indices:
+                if len(indices) == 1:
+                    pid = id_list[indices[0]]
+
+                    if pid in all_players:
+                        await ctx.send(
+                                f"{most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['goals']}g-{most_recent[pid]['assists']}a-{most_recent[pid]['fpts']}fpts)"
+                        )
+                    else:
+                        await ctx.send(
+                            f"Incorrect player ID, that player does not exist")
+                else:
+                    msg = ""
+
+                    for select, idx in enumerate(indices):
+                        pid = id_list[idx]
+                        msg += f"{most_recent[pid]['name']} ID:{PID} ({most_recent[pid]['goals']}g-{most_recent[pid]['assists']}a-{most_recent[pid]['fpts']}fpts)\n"
+                    await ctx.send(msg)
+            else:
+                await ctx.send(
+                    f"Error. Possibly player {arg} doesn't exist"
+                )
+            cur.close()
+
+    except TypeError:
+        await ctx.send(f"Error with input")
+
+@bot.command(pass_context=True,
+             brief="(all players)",
+             name="allplayers",
+             help="Displays player (goals-assists-fantasy points)")
+async def allplayers(ctx):
+    stats = update(testing=False)
+    channel = bot.get_channel(824876222717886487)
+   
+    stats_list = list(stats.items())
+    stats_list.sort(key=lambda x: x[-1]['fpts'], reverse=True)
+    n = 50
+    for idx, _ in enumerate(stats_list):
+        msg = ""
+        if idx % n == 0:
+            if idx+n+1 > len(stats_list):
+                end = len(stats_list)
+            else:
+                end = idx+n+1
+            msg += f"TOP {idx+1}-{end}\n"
+            for key, value in stats_list[idx:idx+n]:
+                msg += f"{value['name']} ID:{key} ({value['goals']}g-{value['assists']}a-{value['fpts']}fpts)\n"
+
+            await channel.send(msg)
 
 
 @bot.command(pass_context=True,

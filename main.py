@@ -58,9 +58,6 @@ def update(testing=False):
         time = 1
         day = 6
     
-    time = pytz.timezone(LOCAL_TZ).localize(dt.now()).hour + 1
-    day = pytz.timezone(LOCAL_TZ).localize(dt.now()).weekday()
-
     cur.execute("SELECT count(*) FROM (SELECT 1 FROM weekly LIMIT 1) AS t;")
     weekly_empty = not cur.fetchall()[0][0]
     cur.execute("SELECT * from weekly")
@@ -92,18 +89,18 @@ def update(testing=False):
     return newest_stats
 
 
-# @tasks.loop(minutes=60)
-@tasks.loop(seconds=30)
+@tasks.loop(minutes=60)
+# @tasks.loop(seconds=30)
 async def update_scoring():
     stats = update(testing=False)
     channel = bot.get_channel(824876222717886487)
 
-    msg = ""
+    # msg = ""
     
-    for key, value in list(stats.items())[:5]:
-        msg += f"{value['name']} -- {value['fpts']}fpts\n"
+    # for key, value in list(stats.items())[:5]:
+    #     msg += f"{value['name']} -- {value['fpts']}fpts\n"
 
-    await channel.send(msg)
+    # await channel.send(msg)
 
 
 @bot.event

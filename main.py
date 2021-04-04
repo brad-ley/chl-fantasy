@@ -11,7 +11,7 @@ from discord.ext import commands, tasks
 from chl_scraper import scrape
 
 LOCAL_TZ = 'America/Vancouver'
-ENV = 'dev'
+ENV = 'prod'
 
 if ENV == 'dev':
     con = psycopg2.connect(dbname='chl-fantasy',
@@ -20,7 +20,7 @@ if ENV == 'dev':
     testing = True
 else:
     con = psycopg2.connect(
-        host=os.getenv("CHL_DB_URL"),
+        host=os.getenv("DATABASE_URL"),
         dbname='chl-fantasy',
     )
     testing = False

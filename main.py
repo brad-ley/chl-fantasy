@@ -143,7 +143,7 @@ async def on_ready():
              brief="(league rules)",
              help="Displays software-related limitations and scoring rules")
 async def rules(ctx):
-    await ctx.send(f"Weekly head-2-head matchup system. Matchups are not yet implemented, so you will want to log them yourself (whoever the commisioner is).\n\nThe way the backend works, trades and free agent pickups should only process once a week on Sunday night or Monday morning (between games).\n\nScoring is as follows:\ngoals -- 5pts | assists -- 3pts | saves -- 0.5pts | goals -- -3pts | shutout -- 5pts | win -- 3pts")
+    await ctx.send(f"Weekly head-2-head matchup system. Matchups are not yet implemented, so you will want to log them yourself (whoever the commisioner is).\n\nThe way the backend works, trades and free agent pickups should only process once a week on Sunday night or Monday morning (between games).\n\nScoring is as follows:\n| goals -- 5pts | assists -- 3pts | saves -- 0.5pts | goals against -- -3pts | shutout -- 5pts | win -- 3pts |")
 
 
 @bot.command(pass_context=True,

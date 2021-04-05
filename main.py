@@ -1061,9 +1061,9 @@ async def goalies(ctx):
 
 @bot.command(pass_context=True,
              brief="[team]",
-             name="roster",
-             help="Displays team roster of team (<arg1>)")
-async def roster(ctx, arg):
+             name="team",
+             help="Displays team (<arg1>)")
+async def team(ctx, arg):
     arg = arg.title()
     cur = con.cursor()
     cur.execute("select team_name, players, goalies from fantasy where team_name = %s",
@@ -1081,26 +1081,26 @@ async def roster(ctx, arg):
         msg = ""
 
         for val in vals:
-            msg += f"TEAM: {val[0]}\n\n"
+            msg += f"========{val[0].strip()}========\n"
             
-            msg += "SKATERS\n"
+            msg += "========skaters========\n"
             if val[1]:
                 for player in list(ast.literal_eval(val[1])):
                     msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']}g-{most_recent[player]['assists']}a-{most_recent[player]['fpts']}fpts)\n"
-            msg += "GOALIES\n"
+            msg += "========goalies========\n"
             if val[2]:
                 for player in list(ast.literal_eval(val[2])):
-                    msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['games']}g-{most_recent[player]['saves']}s-{most_recent[player]['fpts']}fpts)\n"
+                    msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['games']}g-{most_recent_g[player]['saves']}s-{most_recent_g[player]['fpts']}fpts)\n"
         await ctx.send(msg)
     else:
         await ctx.send(f"Error. Possible team {arg} doesn't exist")
     cur.close()
 
 @bot.command(pass_context=True,
-             brief="(all rosters)",
-             name="rosters",
-             help="Displays team rosters")
-async def rosters(ctx):
+             brief="(all teams)",
+             name="teams",
+             help="Displays teams")
+async def teams(ctx):
     cur = con.cursor()
     cur.execute("select team_name, players, goalies from fantasy")
     vals = cur.fetchall() 
@@ -1109,7 +1109,7 @@ async def rosters(ctx):
     )
     most_recent = ast.literal_eval(cur.fetchall()[0][0])
     cur.execute(
-        "select player_data from players order by time desc limit 1"
+        "select player_data from goalies order by time desc limit 1"
     )
     most_recent_g = ast.literal_eval(cur.fetchall()[0][0])
 
@@ -1117,16 +1117,16 @@ async def rosters(ctx):
         msg = ""
 
         for val in vals:
-            msg += f"TEAM: {val[0]}\n\n"
+            msg += f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + "\n"
 
-            msg += "SKATERS\n"
+            msg += "========skaters========\n"
             if val[1]:
                 for player in list(ast.literal_eval(val[1])):
                     msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']}g-{most_recent[player]['assists']}a-{most_recent[player]['fpts']}fpts)\n"
-            msg += "GOALIES\n"
+            msg += "========goalies========\n"
             if val[2]:
                 for player in list(ast.literal_eval(val[2])):
-                    msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['games']}g-{most_recent[player]['saves']}s-{most_recent[player]['fpts']}fpts)\n"
+                    msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['games']}g-{most_recent_g[player]['saves']}s-{most_recent_g[player]['fpts']}fpts)\n"
             msg += "\n"
         await ctx.send(msg.strip())
     else:
@@ -1179,7 +1179,7 @@ async def score(ctx, arg):
                         score += most_recent_g[player]['fpts'] - recent_week_g[player]['fpts']
                     except KeyError:
                         score += most_recent_g[player]['fpts'] - recent_week_g[player]['fpts']
-            msg = f"TEAM: {val[0].strip()} ({score}fpts)\n" + msg
+            msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score}fpts\n" + msg
         await ctx.send(msg.strip())
     else:
         await ctx.send(f"The database is empty")
@@ -1228,7 +1228,7 @@ async def scores(ctx):
                         score += most_recent_g[player]['fpts'] - recent_week_g[player]['fpts']
                     except KeyError:
                         score += most_recent_g[player]['fpts']
-            msg = f"TEAM: {val[0].strip()} -- {score}fpts\n\n" + msg
+            msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score}fpts\n" + msg
         await ctx.send(msg.strip())
     else:
         await ctx.send(f"The database is empty")

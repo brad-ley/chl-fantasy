@@ -21,7 +21,7 @@ def scrape(league='whl', testing=False):
 
         for entry in datalist:
             player_dict[int(entry["player_id"])] = {
-                "name": entry["name"],
+                "name": entry["name"].replace(" (total)",""),
                 "goals": int(entry["goals"]),
                 "assists": int(entry["assists"]),
                 "fpts": int(entry["goals"]) * 5 + int(entry["assists"]) * 3
@@ -35,7 +35,7 @@ def scrape(league='whl', testing=False):
 
         for entry in datalist:
             goalie_dict[int(entry["player_id"])] = {
-                "name": entry["name"],
+                "name": entry["name"].replace(" (total)",""),
                 "games": int(entry["games_played"]),
                 "saves": int(entry["saves"]),
                 "wins": int(entry["wins"]),
@@ -55,6 +55,7 @@ def main(testing=False):
         response = requests.get(url)
         datalist = response.json()['SiteKit']['Statviewtype']
 
+        datafile.write_text(repr(datalist))
         player_dict = {}
         
         for entry in datalist:
@@ -68,7 +69,6 @@ def main(testing=False):
         response = requests.get(url)
         datalist = response.json()['SiteKit']['Statviewtype']
 
-        datafile.write_text(repr(datalist))
 
 
 if __name__ == "__main__":

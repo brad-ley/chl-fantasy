@@ -192,7 +192,7 @@ async def removeteam(ctx, arg):
 
             if num > 0:
                 await ctx.send(
-                    f"Are you sure you want to remove {arg}? Reply 'y' to confirm"
+                    f"Are you sure you want to remove {arg}? Reply 'y' to confirm or 'n' to cancel."
                 )
                 msg = await bot.wait_for("message",
                                          check=lambda m: m.author == ctx.author
@@ -247,7 +247,7 @@ async def addplayer(ctx, arg1, arg2):
                     try:
                         if arg2 not in all_players:
                             await ctx.send(
-                                    f"Would you like to add {most_recent[arg2]['name']} ID:{arg2} ({most_recent[arg2]['goals']}g-{most_recent[arg2]['assists']}a-{most_recent[arg2]['fpts']}fpts) to {arg1}? Reply 'y' to confirm"
+                                    f"Would you like to add {most_recent[arg2]['name']} ID:{arg2} ({most_recent[arg2]['goals']}g-{most_recent[arg2]['assists']}a-{most_recent[arg2]['fpts']}fpts) to {arg1}? Reply 'y' to confirm or 'n' to cancel."
                             )
                             msg = await bot.wait_for(
                                 "message",
@@ -292,7 +292,7 @@ async def addplayer(ctx, arg1, arg2):
 
                             if pid not in all_players:
                                 await ctx.send(
-                                        f"Would you like to add {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['goals']}g-{most_recent[pid]['assists']}a-{most_recent[pid]['fpts']}fpts) to {arg1}? Reply 'y' to confirm"
+                                        f"Would you like to add {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['goals']}g-{most_recent[pid]['assists']}a-{most_recent[pid]['fpts']}fpts) to {arg1}? Reply 'y' to confirm or 'n' to cancel."
                                 )
                                 msg = await bot.wait_for(
                                     "message",
@@ -410,7 +410,7 @@ async def addgoalie(ctx, arg1, arg2):
                     try:
                         if arg2 not in all_players:
                             await ctx.send(
-                                    f"Would you like to add {most_recent[arg2]['name']} ID:{arg2} ({most_recent[arg2]['games']}g-{most_recent[arg2]['saves']}s-{most_recent[arg2]['fpts']}fpts) to {arg1}? Reply 'y' to confirm"
+                                    f"Would you like to add {most_recent[arg2]['name']} ID:{arg2} ({most_recent[arg2]['games']}g-{most_recent[arg2]['saves']}s-{most_recent[arg2]['fpts']}fpts) to {arg1}? Reply 'y' to confirm or 'n' to cancel."
                             )
                             msg = await bot.wait_for(
                                 "message",
@@ -455,7 +455,7 @@ async def addgoalie(ctx, arg1, arg2):
 
                             if pid not in all_players:
                                 await ctx.send(
-                                        f"Would you like to add {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['games']}g-{most_recent[pid]['saves']}g-{most_recent[pid]['fpts']}fpts) to {arg1}? Reply 'y' to confirm"
+                                        f"Would you like to add {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['games']}g-{most_recent[pid]['saves']}g-{most_recent[pid]['fpts']}fpts) to {arg1}? Reply 'y' to confirm or 'n' to cancel."
                                 )
                                 msg = await bot.wait_for(
                                     "message",
@@ -572,7 +572,7 @@ async def removegoalie(ctx, arg1, arg2):
                     try:
                         if arg2 in curr_players:
                             await ctx.send(
-                                    f"Would you like to remove {most_recent[arg2]['name']} ID:{arg2} ({most_recent[arg2]['games']}g-{most_recent[arg2]['saves']}s-{most_recent[arg2]['fpts']}fpts) from {arg1}? Reply 'y' to confirm"
+                                    f"Would you like to remove {most_recent[arg2]['name']} ID:{arg2} ({most_recent[arg2]['games']}g-{most_recent[arg2]['saves']}s-{most_recent[arg2]['fpts']}fpts) from {arg1}? Reply 'y' to confirm or 'n' to cancel."
                             )
                             msg = await bot.wait_for(
                                 "message",
@@ -616,7 +616,7 @@ async def removegoalie(ctx, arg1, arg2):
 
                             if pid in curr_players:
                                 await ctx.send(
-                                        f"Would you like to remove {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['games']}g-{most_recent[pid]['saves']}s-{most_recent[pid]['fpts']}fpts) from {arg1}? Reply 'y' to confirm"
+                                        f"Would you like to remove {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['games']}g-{most_recent[pid]['saves']}s-{most_recent[pid]['fpts']}fpts) from {arg1}? Reply 'y' to confirm or 'n' to cancel."
                                 )
                                 msg = await bot.wait_for(
                                     "message",
@@ -731,7 +731,7 @@ async def removeplayer(ctx, arg1, arg2):
                     try:
                         if arg2 in curr_players:
                             await ctx.send(
-                                    f"Would you like to remove {most_recent[arg2]['name']} ID:{arg2} ({most_recent[arg2]['goals']}g-{most_recent[arg2]['assists']}a-{most_recent[arg2]['fpts']}fpts) from {arg1}? Reply 'y' to confirm"
+                                    f"Would you like to remove {most_recent[arg2]['name']} ID:{arg2} ({most_recent[arg2]['goals']}g-{most_recent[arg2]['assists']}a-{most_recent[arg2]['fpts']}fpts) from {arg1}? Reply 'y' to confirm or 'n' to cancel."
                             )
                             msg = await bot.wait_for(
                                 "message",
@@ -775,7 +775,7 @@ async def removeplayer(ctx, arg1, arg2):
 
                             if pid in curr_players:
                                 await ctx.send(
-                                        f"Would you like to remove {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['goals']}g-{most_recent[pid]['assists']}a-{most_recent[pid]['fpts']}fpts) from {arg1}? Reply 'y' to confirm"
+                                        f"Would you like to remove {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['goals']}g-{most_recent[pid]['assists']}a-{most_recent[pid]['fpts']}fpts) from {arg1}? Reply 'y' to confirm or 'n' to cancel."
                                 )
                                 msg = await bot.wait_for(
                                     "message",

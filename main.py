@@ -114,6 +114,7 @@ def update(testing=False):
     cur.close()
 
     # return newest_stats, newest_stats_g
+
     return newest_player_stats, newest_player_stats_g
 
 
@@ -1008,14 +1009,17 @@ async def players(ctx):
     stats_list = list(stats.items())
     stats_list.sort(key=lambda x: x[-1]['fpts'], reverse=True)
     n = 50
+
     for idx, _ in enumerate(stats_list):
         msg = ""
+
         if idx % n == 0 and stats_list[idx][1]['fpts'] > 0:
             if idx+n+1 > len(stats_list):
                 end = len(stats_list)
             else:
                 end = idx+n+1
             msg += f"TOP {idx+1}-{end}\n"
+
             for key, value in stats_list[idx:idx+n]:
 
                 msg += f"{value['name']} ID:{key} ({value['goals']}g-{value['assists']}a-{value['fpts']}fpts)\n"
@@ -1045,14 +1049,17 @@ async def goalies(ctx):
     stats_list = list(stats.items())
     stats_list.sort(key=lambda x: x[-1]['fpts'], reverse=True)
     n = 50
+
     for idx, _ in enumerate(stats_list):
         msg = ""
+
         if idx % n == 0 and stats_list[idx][1]['fpts'] > 0:
             if idx+n+1 > len(stats_list):
                 end = len(stats_list)
             else:
                 end = idx+n+1
             msg += f"TOP {idx+1}-{end}\n"
+
             for key, value in stats_list[idx:idx+n]:
 
                 msg += f"{value['name']} ID:{key} ({value['games']}g-{value['saves']}s-{value['fpts']}fpts)\n"
@@ -1077,6 +1084,7 @@ async def team(ctx, arg):
         "select player_data from goalies order by time desc limit 1"
     )
     most_recent_g = ast.literal_eval(cur.fetchall()[0][0])
+
     if vals:
         msg = ""
 
@@ -1084,10 +1092,12 @@ async def team(ctx, arg):
             msg += f"========{val[0].strip()}========\n"
             
             msg += "========skaters========\n"
+
             if val[1]:
                 for player in list(ast.literal_eval(val[1])):
                     msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']}g-{most_recent[player]['assists']}a-{most_recent[player]['fpts']}fpts)\n"
             msg += "========goalies========\n"
+
             if val[2]:
                 for player in list(ast.literal_eval(val[2])):
                     msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['games']}g-{most_recent_g[player]['saves']}s-{most_recent_g[player]['fpts']}fpts)\n"
@@ -1120,10 +1130,12 @@ async def teams(ctx):
             msg += f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + "\n"
 
             msg += "========skaters========\n"
+
             if val[1]:
                 for player in list(ast.literal_eval(val[1])):
                     msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']}g-{most_recent[player]['assists']}a-{most_recent[player]['fpts']}fpts)\n"
             msg += "========goalies========\n"
+
             if val[2]:
                 for player in list(ast.literal_eval(val[2])):
                     msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['games']}g-{most_recent_g[player]['saves']}s-{most_recent_g[player]['fpts']}fpts)\n"
@@ -1160,6 +1172,7 @@ async def score(ctx, arg):
         "select player_data from weekly_goalie order by time desc limit 1"
     )
     recent_week_g = ast.literal_eval(cur.fetchall()[0][0])
+
     if vals:
         msg = ""
         score = 0
@@ -1172,6 +1185,7 @@ async def score(ctx, arg):
                         score += most_recent[player]['fpts'] - recent_week[player]['fpts']
                     except KeyError:
                         score += most_recent[player]['fpts']
+
             if val[2]:
                 for player in list(ast.literal_eval(val[2])):
                     msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['games']-recent_week_g[player]['games']}g-{most_recent_g[player]['saves']-recent_week_g[player]['saves']}s-{most_recent_g[player]['fpts']-recent_week_g[player]['fpts']}fpts)\n"
@@ -1222,6 +1236,7 @@ async def scores(ctx):
                         score += most_recent[player]['fpts'] - recent_week[player]['fpts']
                     except KeyError:
                         score += most_recent[player]['fpts']
+
             if val[2]:
                 for player in list(ast.literal_eval(val[2])):
                     try:

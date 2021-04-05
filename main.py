@@ -320,7 +320,7 @@ async def addplayer(ctx, arg1, arg2):
                                     f"{most_recent[pid]['name']} is already on team {team_on}"
                                 )
                         else:
-                            msg = f"Would you like to add one of these players to team {arg1}? Reply with the number corresponding the player you'd like.\n"
+                            msg = f"Would you like to add one of these players to team {arg1}? If yes, reply with the number corresponding the player you'd like. If no, reply with 'n'.\n"
 
                             for select, idx in enumerate(indices):
                                 pid = id_list[idx]
@@ -483,7 +483,7 @@ async def addgoalie(ctx, arg1, arg2):
                                     f"{most_recent[pid]['name']} is already on team {team_on}"
                                 )
                         else:
-                            msg = f"Would you like to add one of these goalies to team {arg1}? Reply with the number corresponding the player you'd like.\n"
+                            msg = f"Would you like to add one of these goalies to team {arg1}? If yes, reply with the number corresponding the player you'd like. If no, reply with 'n'.\n"
 
                             for select, idx in enumerate(indices):
                                 pid = id_list[idx]
@@ -643,7 +643,7 @@ async def removegoalie(ctx, arg1, arg2):
                                     f"{most_recent[pid]['name']} is not on team {arg1}"
                                 )
                         else:
-                            msg = f"Would you like to remove one of these goalies to team {arg1}? Reply with the number corresponding the player you'd like.\n"
+                            msg = f"Would you like to remove one of these goalies to team {arg1}? If yes, reply with the number corresponding the player you'd like. If no, reply with 'n'.\n"
 
                             for select, idx in enumerate(indices):
                                 pid = id_list[idx]
@@ -802,7 +802,7 @@ async def removeplayer(ctx, arg1, arg2):
                                     f"{most_recent[pid]['name']} is not on team {arg1}"
                                 )
                         else:
-                            msg = f"Would you like to remove one of these players to team {arg1}? Reply with the number corresponding the player you'd like.\n"
+                            msg = f"Would you like to remove one of these players to team {arg1}? If yes, reply with the number corresponding the player you'd like. If no, reply with 'n'.\n"
 
                             for select, idx in enumerate(indices):
                                 pid = id_list[idx]

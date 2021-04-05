@@ -71,7 +71,6 @@ def update(testing=False):
                 dt.now()).timestamp()), repr(data)))
 
     cur.execute("select time, player_data from players")
-
     rows = cur.fetchall()
     cur.execute("select time, player_data from weekly")
     weekrows = cur.fetchall()
@@ -568,10 +567,22 @@ async def player(ctx, arg):
              name="players",
              help="Displays all players (goals-assists-fantasy points)")
 async def players(ctx):
-    player_stats, goalie_stats = update(testing=False)
-    channel = bot.get_channel(824876222717886487)
+    cur = con.cursor()
+    cur.execute("select time, player_data from players")
+    rows = cur.fetchall()
+
+    try:
+        stats = ast.literal_eval(rows[-1][1])
+        # stats_g = ast.literal_eval(rows_g[-1][1])
+        # print(newest_stats, newest_week, sep="\n")
+    except Exception:
+        print("No data stored yet")
+
+    con.commit()
+    cur.close()
+    # channel = bot.get_channel(824876222717886487)
    
-    stats_list = list(player_stats.items())
+    stats_list = list(stats.items())
     stats_list.sort(key=lambda x: x[-1]['fpts'], reverse=True)
     n = 50
     for idx, _ in enumerate(stats_list):
@@ -585,7 +596,7 @@ async def players(ctx):
             for key, value in stats_list[idx:idx+n]:
                 msg += f"{value['name']} ID:{key} ({value['goals']}g-{value['assists']}a-{value['fpts']}fpts)\n"
 
-            await channel.send(msg)
+            await ctx.send(msg)
 
 
 @bot.command(pass_context=True,

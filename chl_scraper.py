@@ -27,7 +27,7 @@ def scrape(league='whl', testing=False):
                 "fpts": int(entry["goals"]) * 5 + int(entry["assists"]) * 3
             }
 
-        url = f'https://lscluster.hockeytech.com/feed/?feed=modulekit&view=statviewtype&type=topgoalies&key=41b145a848f4bd67&fmt=json&qualified=qualified&client_code=whl&lang=en&league_code=&season_id=273&first=400&limit=100&sort=active&order_direction='
+        url = f'https://lscluster.hockeytech.com/feed/?feed=modulekit&view=statviewtype&type=topgoalies&key=41b145a848f4bd67&fmt=json&qualified=qualified&client_code=whl&lang=en&league_code=&season_id=273&first=0&limit={limit}&sort=active&order_direction='
         response = requests.get(url)
         datalist = response.json()['SiteKit']['Statviewtype']
 
@@ -40,7 +40,7 @@ def scrape(league='whl', testing=False):
                 "saves": int(entry["saves"]),
                 "wins": int(entry["wins"]),
                 "shutouts": int(entry["shutouts"]),
-                "fpts": int(entry["saves"])*0.5 - int(entry["games_played"])*3 + int(entr["shutouts"])*5
+                "fpts": int(entry["saves"])*0.5 - int(entry["games_played"])*3 + int(entry["shutouts"])*5 + int(entry["wins"])*3
             }
     return player_dict, goalie_dict
 

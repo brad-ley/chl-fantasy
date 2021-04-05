@@ -111,6 +111,14 @@ async def on_ready():
 
 
 @bot.command(pass_context=True,
+             name="rules",
+             brief="(league rules)",
+             help="Displays software-related limitations and scoring rules")
+async def rules(ctx, arg):
+    ctx.send(f"Weekly head-2-head matchup system. Matchups are not yet implemented, so you will want to log them yourself (whoever the commisioner is).\n\nThe way the backend works, trades should only process once a week on Sunday night or Monday morning, between games.\n\nGoals are 5 points, assists 3 points, saves 0.5 points, goals against -3 points, shutout 5 points, win 3 points.")
+
+
+@bot.command(pass_context=True,
              name="addteam",
              brief="[new team]",
              help="Will create a new (empty) team in the league")

@@ -122,7 +122,7 @@ async def checktime(ctx):
     if testing:
         valid = 0 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour <= 23
     else:
-        valid = 1 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour <= 13
+        valid = 1 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour <= 23
 
     if not valid:
         await ctx.send("Player & goalie additions can only be made between 1 am and 1 pm Pacific time")
@@ -133,7 +133,7 @@ async def checktime(ctx):
 def playermax(func):
     async def decorator(ctx, *args, **kwargs):
         maxplayers = 10
-        team = args[0]
+        team = args[0].title()
         with con.cursor() as cur:
             cur.execute("select players from fantasy where team_name = %s", (team, ))
             try:
@@ -142,7 +142,6 @@ def playermax(func):
 
                 if not valid:
                     await ctx.send(f"{team} already has the maximum number of players ({maxplayers})")
-
                     return
                 await func(ctx, *args, **kwargs)
             except IndexError:
@@ -154,16 +153,14 @@ def playermax(func):
 def goaliemax(func):
     async def decorator(ctx, *args, **kwargs):
         maxgoalies = 2
-        team = args[0]
+        team = args[0].title()
         with con.cursor() as cur:
             cur.execute("select goalies from fantasy where team_name = %s", (team, ))
             try:
                 players = ast.literal_eval(cur.fetchall()[0][0])
                 valid = len(players) < maxgoalies
-
                 if not valid:
                     await ctx.send(f"{team} already has the maximum number of goalies ({maxgoalies})")
-
                     return
                 await func(ctx, *args, **kwargs)
             except IndexError:
@@ -171,18 +168,6 @@ def goaliemax(func):
 
     return decorator
 
-# async def goaliemax(ctx, *args):
-#     def test(*args, **kwargs):
-#         print(args)
-#     # cur = con.cursor()
-#     # cur.execute("select goalies from fantasy where team_name = %s", (team, ))
-#     # players = cur.fetchall()[0]
-#     # valid = len(players) <= 10
-#     print(test())
-#     # if not valid:
-#     #     await ctx.send("{team} already has the maximum number of goalies")
-#     # cur.close()
-#     # return valid
 
 @tasks.loop(minutes=60)
 # @tasks.loop(seconds=30)

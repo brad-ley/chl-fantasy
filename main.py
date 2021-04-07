@@ -209,7 +209,8 @@ async def addteam(ctx, arg):
     if type(arg) == str:
         arg = arg.title()
 
-        if ctx.message.author.guild_permissions.administrator:
+        # if ctx.message.author.guild_permissions.administrator:
+        if True:
             cur = con.cursor()
             cur.execute("select team_name from fantasy where team_name = %s",
                         (arg, ))
@@ -238,7 +239,8 @@ async def removeteam(ctx, arg):
     if type(arg) == str:
         arg = arg.title()
 
-        if ctx.message.author.guild_permissions.administrator:
+        # if ctx.message.author.guild_permissions.administrator:
+        if True:
             cur = con.cursor()
             cur.execute("select team_name from fantasy where team_name = %s",
                         (arg, ))
@@ -280,7 +282,8 @@ async def addplayer(ctx, arg1, arg2):
         arg2 = arg2.title()
         cur = con.cursor()
 
-        if ctx.message.author.guild_permissions.administrator:
+        # if ctx.message.author.guild_permissions.administrator:
+        if True:
             cur.execute("select team_name, players from fantasy")
             fetched = cur.fetchall()
             all_players = sum(
@@ -466,7 +469,8 @@ async def addgoalie(ctx, arg1, arg2):
         added = False
         cur = con.cursor()
 
-        if ctx.message.author.guild_permissions.administrator:
+        # if ctx.message.author.guild_permissions.administrator:
+        if True:
             cur.execute("select team_name, goalies from fantasy")
             fetched = cur.fetchall()
             all_players = sum(
@@ -490,7 +494,7 @@ async def addgoalie(ctx, arg1, arg2):
                     try:
                         if arg2 not in all_players:
                             await ctx.send(
-                                    f"Would you like to add {most_recent[arg2]['name']} ID:{arg2} ({most_recent[arg2]['games']}g-{most_recent[arg2]['saves']}s-{most_recent[arg2]['fpts']:.1f}fpts) to {arg1}? Reply 'y' to confirm or 'n' to cancel."
+                                    f"Would you like to add {most_recent[arg2]['name']} ID:{arg2} ({most_recent[arg2]['saves']}s-{most_recent[arg2]['fpts']:.1f}fpts) to {arg1}? Reply 'y' to confirm or 'n' to cancel."
                             )
                             msg = await bot.wait_for(
                                 "message",
@@ -537,7 +541,7 @@ async def addgoalie(ctx, arg1, arg2):
 
                             if pid not in all_players:
                                 await ctx.send(
-                                        f"Would you like to add {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['games']}g-{most_recent[pid]['saves']}g-{most_recent[pid]['fpts']:.1f}fpts) to {arg1}? Reply 'y' to confirm or 'n' to cancel."
+                                        f"Would you like to add {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['saves']}g-{most_recent[pid]['fpts']:.1f}fpts) to {arg1}? Reply 'y' to confirm or 'n' to cancel."
                                 )
                                 msg = await bot.wait_for(
                                     "message",
@@ -571,7 +575,7 @@ async def addgoalie(ctx, arg1, arg2):
 
                             for select, idx in enumerate(indices):
                                 pid = id_list[idx]
-                                msg += f"{select+1}: {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['games']}g-{most_recent[pid]['saves']}s-{most_recent[pid]['fpts']:.1f}fpts)\n"
+                                msg += f"{select+1}: {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['saves']}s-{most_recent[pid]['fpts']:.1f}fpts)\n"
                             await ctx.send(msg)
                             msg = await bot.wait_for(
                                 "message",
@@ -648,7 +652,8 @@ async def removegoalie(ctx, arg1, arg2):
         arg1 = arg1.title()
         arg2 = arg2.title()
 
-        if ctx.message.author.guild_permissions.administrator:
+        # if ctx.message.author.guild_permissions.administrator:
+        if True:
             cur = con.cursor()
             cur.execute("select team_name, goalies from fantasy")
             fetched = cur.fetchall()
@@ -673,7 +678,7 @@ async def removegoalie(ctx, arg1, arg2):
                     try:
                         if arg2 in curr_players:
                             await ctx.send(
-                                    f"Would you like to remove {most_recent[arg2]['name']} ID:{arg2} ({most_recent[arg2]['games']}g-{most_recent[arg2]['saves']}s-{most_recent[arg2]['fpts']:.1f}fpts) from {arg1}? Reply 'y' to confirm or 'n' to cancel."
+                                    f"Would you like to remove {most_recent[arg2]['name']} ID:{arg2} ({most_recent[arg2]['saves']}s-{most_recent[arg2]['fpts']:.1f}fpts) from {arg1}? Reply 'y' to confirm or 'n' to cancel."
                             )
                             msg = await bot.wait_for(
                                 "message",
@@ -719,7 +724,7 @@ async def removegoalie(ctx, arg1, arg2):
 
                             if pid in curr_players:
                                 await ctx.send(
-                                        f"Would you like to remove {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['games']}g-{most_recent[pid]['saves']}s-{most_recent[pid]['fpts']:.1f}fpts) from {arg1}? Reply 'y' to confirm or 'n' to cancel."
+                                        f"Would you like to remove {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['saves']}s-{most_recent[pid]['fpts']:.1f}fpts) from {arg1}? Reply 'y' to confirm or 'n' to cancel."
                                 )
                                 msg = await bot.wait_for(
                                     "message",
@@ -752,7 +757,7 @@ async def removegoalie(ctx, arg1, arg2):
 
                             for select, idx in enumerate(indices):
                                 pid = id_list[idx]
-                                msg += f"{select+1}: {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['games']}g-{most_recent[pid]['saves']}s-{most_recent[pid]['fpts']:.1f}fpts)\n"
+                                msg += f"{select+1}: {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['saves']}s-{most_recent[pid]['fpts']:.1f}fpts)\n"
                             await ctx.send(msg)
                             msg = await bot.wait_for(
                                 "message",
@@ -832,7 +837,8 @@ async def removeplayer(ctx, arg1, arg2):
         removed = False
         cur = con.cursor()
 
-        if ctx.message.author.guild_permissions.administrator:
+        # if ctx.message.author.guild_permissions.administrator:
+        if True:
             cur.execute("select team_name, players from fantasy")
             fetched = cur.fetchall()
             all_players = sum(
@@ -1087,7 +1093,7 @@ async def goalie(ctx, arg):
         if type(arg) == int:
             if arg in all_players:
                 await ctx.send(
-                        f"{most_recent[arg]['name']} ID:{arg} ({most_recent[arg]['games']}g-{most_recent[arg]['saves']}sv-{most_recent[arg]['goals_against']}ga-{most_recent[arg]['shutouts']}so-{most_recent[arg]['wins']}w-{most_recent[arg]['fpts']:.1f}fpts)"
+                        f"{most_recent[arg]['name']} ID:{arg} ({most_recent[arg]['saves']}sv-{most_recent[arg]['goals_against']}ga-{most_recent[arg]['shutouts']}so-{most_recent[arg]['wins']}w-{most_recent[arg]['fpts']:.1f}fpts)\n"
                 )
             else:
                 await ctx.send(
@@ -1107,7 +1113,7 @@ async def goalie(ctx, arg):
 
                     if pid in all_players:
                         await ctx.send(
-                                f"{most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['games']}g-{most_recent[pid]['saves']}s-{most_recent[pid]['fpts']:.1f}fpts)"
+                                f"{most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['saves']}sv-{most_recent[pid]['goals_against']}ga-{most_recent[pid]['shutouts']}so-{most_recent[pid]['wins']}w-{most_recent[pid]['fpts']:.1f}fpts)\n"
                         )
                     else:
                         await ctx.send(
@@ -1117,7 +1123,7 @@ async def goalie(ctx, arg):
 
                     for select, idx in enumerate(indices):
                         pid = id_list[idx]
-                        msg += f"{most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['games']}g-{most_recent[pid]['saves']}s-{most_recent[pid]['fpts']:.1f}fpts)\n"
+                        msg += f"{most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['saves']}s-{most_recent[pid]['fpts']:.1f}fpts)\n"
                     await ctx.send(msg)
             else:
                 await ctx.send(
@@ -1204,7 +1210,7 @@ async def goalies(ctx):
 
             for key, value in stats_list[idx:idx+n]:
 
-                msg += f"{value['name']} ID:{key} ({value['games']}g-{value['saves']}s-{value['fpts']:.1f}fpts)\n"
+                msg += f"{value['name']} ID:{key} ({value['saves']}s-{value['fpts']:.1f}fpts)\n"
 
             await ctx.send(msg)
 
@@ -1231,7 +1237,7 @@ async def team(ctx, arg):
         msg = ""
 
         for val in vals:
-            msg += f"========{val[0].strip()}========\n"
+            msg += f"========{val[0].strip()}" + "="*(len("skaters=======") - len(val[0].strip()))+ "\n"
             
             msg += "========skaters========\n"
 
@@ -1242,7 +1248,7 @@ async def team(ctx, arg):
 
             if val[2]:
                 for player in list(ast.literal_eval(val[2])):
-                    msg += f"{most_recent[player]['name']} ID:{player} ({most_recent[player]['games']}g-{most_recent[player]['saves']}sv-{most_recent[player]['goals_against']}ga-{most_recent[player]['shutouts']}so-{most_recent[player]['wins']}w-{most_recent[player]['fpts']:.1f}fpts)"
+                    msg += f"{most_recent_g[player]['name']} ID:{player} ({most_recent_g[player]['saves']}sv-{most_recent_g[player]['goals_against']}ga-{most_recent_g[player]['shutouts']}so-{most_recent_g[player]['wins']}w-{most_recent_g[player]['fpts']:.1f}fpts)\n"
         await ctx.send(msg)
     else:
         await ctx.send(f"Error. Possible team {arg} doesn't exist")
@@ -1280,7 +1286,7 @@ async def teams(ctx):
 
             if val[2]:
                 for player in list(ast.literal_eval(val[2])):
-                    msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['games']}g-{most_recent_g[player]['saves']}s-{most_recent_g[player]['fpts']:.1f}fpts)\n"
+                    msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['saves']}s-{most_recent_g[player]['fpts']:.1f}fpts)\n"
             msg += "\n"
         await ctx.send(msg.strip())
     else:
@@ -1320,29 +1326,29 @@ async def score(ctx, arg):
         score = 0
 
         for val in vals:
-            msg += f"========{val[0].strip()}========\n"
-
             if val[1]:
             
                 msg += "========skaters========\n"
 
                 for player in list(ast.literal_eval(val[1])):
-                    msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']-recent_week[player]['goals']}g-{most_recent[player]['assists']-recent_week[player]['assists']}a-{most_recent[player]['fpts']-recent_week[player]['fpts']:.1f}fpts)\n"
                     try:
+                        msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']-recent_week[player]['goals']}g-{most_recent[player]['assists']-recent_week[player]['assists']}a-{most_recent[player]['fpts']-recent_week[player]['fpts']:.1f}fpts)\n"
                         score += most_recent[player]['fpts'] - recent_week[player]['fpts']
                     except KeyError:
+                        msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']}g-{most_recent[player]['assists']}a-{most_recent[player]['fpts']}fpts)\n"
                         score += most_recent[player]['fpts']
             
             if val[2]:
                 msg += "========goalies========\n"
 
                 for player in list(ast.literal_eval(val[2])):
-                    msg += f"{most_recent[player]['name']} ID:{player} ({most_recent[player]['games']}g-{most_recent[player]['saves']}sv-{most_recent[player]['goals_against']}ga-{most_recent[player]['shutouts']}so-{most_recent[player]['wins']}w-{most_recent[player]['fpts']:.1f}fpts)"
                     try:
+                        msg += f"{most_recent_g[player]['name']} ID:{player} ({most_recent_g[player]['saves']-recent_week_g[player]['saves']}sv-{most_recent_g[player]['goals_against']-recent_week_g[player]['goals_against']}ga-{most_recent_g[player]['shutouts']-recent_week_g[player]['shutouts']}so-{most_recent_g[player]['wins']-recent_week_g[player]['wins']}w-{most_recent_g[player]['fpts']-recent_week_g[player]['fpts']:.1f}fpts)\n"
                         score += most_recent_g[player]['fpts'] - recent_week_g[player]['fpts']
                     except KeyError:
-                        score += most_recent_g[player]['fpts'] - recent_week_g[player]['fpts']
-            msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score:.1}fpts\n" + msg
+                        msg += f"{most_recent_g[player]['name']} ID:{player} ({most_recent_g[player]['saves']}sv-{most_recent_g[player]['goals_against']}ga-{most_recent_g[player]['shutouts']}so-{most_recent_g[player]['wins']}w-{most_recent_g[player]['fpts']:.1f}fpts)\n"
+                        score += most_recent_g[player]['fpts']
+            msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score:.1f}fpts\n" + msg
         await ctx.send(msg.strip())
     else:
         await ctx.send(f"The database is empty")

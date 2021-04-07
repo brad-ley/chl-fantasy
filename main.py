@@ -122,10 +122,10 @@ async def checktime(ctx):
     if testing:
         valid = 0 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour <= 23
     else:
-        valid = 1 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour <= 23
+        valid = 0 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour < 14
 
     if not valid:
-        await ctx.send("Player & goalie additions can only be made between 1 am and 1 pm Pacific time")
+        await ctx.send("Player & goalie additions can only be made between midnight and 2 pm Pacific time")
 
     return valid
 
@@ -142,6 +142,7 @@ def playermax(func):
 
                 if not valid:
                     await ctx.send(f"{team} already has the maximum number of players ({maxplayers})")
+
                     return
                 await func(ctx, *args, **kwargs)
             except IndexError:
@@ -159,8 +160,10 @@ def goaliemax(func):
             try:
                 players = ast.literal_eval(cur.fetchall()[0][0])
                 valid = len(players) < maxgoalies
+
                 if not valid:
                     await ctx.send(f"{team} already has the maximum number of goalies ({maxgoalies})")
+
                     return
                 await func(ctx, *args, **kwargs)
             except IndexError:
@@ -1084,7 +1087,7 @@ async def goalie(ctx, arg):
         if type(arg) == int:
             if arg in all_players:
                 await ctx.send(
-                        f"{most_recent[arg]['name']} ID:{arg} ({most_recent[arg]['games']}g-{most_recent[arg]['saves']}s-{most_recent[arg]['fpts']:.1f}fpts)"
+                        f"{most_recent[arg]['name']} ID:{arg} ({most_recent[arg]['games']}g-{most_recent[arg]['saves']}sv-{most_recent[arg]['goals_against']}ga-{most_recent[arg]['shutouts']}so-{most_recent[arg]['wins']}w-{most_recent[arg]['fpts']:.1f}fpts)"
                 )
             else:
                 await ctx.send(
@@ -1239,7 +1242,7 @@ async def team(ctx, arg):
 
             if val[2]:
                 for player in list(ast.literal_eval(val[2])):
-                    msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['games']}g-{most_recent_g[player]['saves']}s-{most_recent_g[player]['fpts']:.1f}fpts)\n"
+                    msg += f"{most_recent[player]['name']} ID:{player} ({most_recent[player]['games']}g-{most_recent[player]['saves']}sv-{most_recent[player]['goals_against']}ga-{most_recent[player]['shutouts']}so-{most_recent[player]['wins']}w-{most_recent[player]['fpts']:.1f}fpts)"
         await ctx.send(msg)
     else:
         await ctx.send(f"Error. Possible team {arg} doesn't exist")
@@ -1334,7 +1337,7 @@ async def score(ctx, arg):
                 msg += "========goalies========\n"
 
                 for player in list(ast.literal_eval(val[2])):
-                    msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['games']-recent_week_g[player]['games']}g-{most_recent_g[player]['saves']-recent_week_g[player]['saves']}s-{most_recent_g[player]['fpts']-recent_week_g[player]['fpts']:.1f}fpts)\n"
+                    msg += f"{most_recent[player]['name']} ID:{player} ({most_recent[player]['games']}g-{most_recent[player]['saves']}sv-{most_recent[player]['goals_against']}ga-{most_recent[player]['shutouts']}so-{most_recent[player]['wins']}w-{most_recent[player]['fpts']:.1f}fpts)"
                     try:
                         score += most_recent_g[player]['fpts'] - recent_week_g[player]['fpts']
                     except KeyError:

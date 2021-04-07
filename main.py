@@ -1287,14 +1287,14 @@ async def team(ctx, arg):
         msg = ""
 
         for val in vals:
-            msg += "="*((len("========skaters=======") - len(val[0].strip()))//2)+ f"{val[0].strip()}" + "="*((len("========skaters=======") - len(val[0].strip()))//2) + "\n"
+            msg += val[0].strip().center(22, "=") + "\n"
             
-            msg += "========skaters========\n"
+            msg += "skaters".center(23, "=")+"\n"
 
             if val[1]:
                 for player in list(ast.literal_eval(val[1])):
                     msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']}g-{most_recent[player]['assists']}a-{most_recent[player]['fpts']:.1f}fpts)\n"
-            msg += "========goalies========\n"
+            msg += "goalies".center(23, "=")+"\n"
 
             if val[2]:
                 for player in list(ast.literal_eval(val[2])):
@@ -1326,14 +1326,14 @@ async def teams(ctx):
 
         for val in vals:
             # msg += f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + "\n"
-            msg += "="*((len("========skaters=======") - len(val[0].strip()))//2)+ f"{val[0].strip()}" + "="*((len("========skaters=======") - len(val[0].strip()))//2) + f"{score:.1f}fpts\n"
+            msg += val[0].strip().center(22,"=") + f"\n"
 
-            msg += "========skaters========\n"
+            msg += "skaters".center(23,"=")+"\n"
 
             if val[1]:
                 for player in list(ast.literal_eval(val[1])):
                     msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']}g-{most_recent[player]['assists']}a-{most_recent[player]['fpts']:.1f}fpts)\n"
-            msg += "========goalies========\n"
+            msg += "goalies".center(23,"=")+"\n"
 
             if val[2]:
                 for player in list(ast.literal_eval(val[2])):
@@ -1379,7 +1379,7 @@ async def score(ctx, arg):
         for val in vals:
             if val[1]:
             
-                msg += "========skaters========\n"
+                msg += "skaters".center(23,"=")+"\n"
 
                 for player in list(ast.literal_eval(val[1])):
                     try:
@@ -1390,7 +1390,7 @@ async def score(ctx, arg):
                         score += most_recent[player]['fpts']
             
             if val[2]:
-                msg += "========goalies========\n"
+                msg += "goalies".center(23,"=")+"\n"
 
                 for player in list(ast.literal_eval(val[2])):
                     try:
@@ -1400,7 +1400,7 @@ async def score(ctx, arg):
                         msg += f"{most_recent_g[player]['name']} ID:{player} ({most_recent_g[player]['saves']}sv-{most_recent_g[player]['goals_against']}ga-{most_recent_g[player]['shutouts']}so-{most_recent_g[player]['wins']}w-{most_recent_g[player]['fpts']:.1f}fpts)\n"
                         score += most_recent_g[player]['fpts']
             # msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score:.1f}fpts\n" + msg
-            msg = "="*((len("========skaters=======") - len(val[0].strip()))//2)+ f"{val[0].strip()}" + "="*((len("========skaters=======") - len(val[0].strip()))//2) + f"{score:.1f}fpts\n" + msg
+            msg = val[0].strip().center(22, "=") + f"{score:.1f}fpts\n" + msg
         await ctx.send(msg.strip())
     else:
         await ctx.send(f"The database is empty")
@@ -1451,7 +1451,7 @@ async def scores(ctx):
                         score += most_recent_g[player]['fpts'] - recent_week_g[player]['fpts']
                     except KeyError:
                         score += most_recent_g[player]['fpts']
-            msg = "="*((len("========skaters=======") - len(val[0].strip()))//2)+ f"{val[0].strip()}" + "="*((len("========skaters=======") - len(val[0].strip()))//2) + f"{score:.1f}fpts\n" + msg + "\n"
+            msg += val[0].strip().center(22, "=") + f"{score:.1f}" + "\n"
         await ctx.send(msg.strip())
     else:
         await ctx.send(f"The database is empty")

@@ -1383,29 +1383,31 @@ async def score(ctx, arg):
 
         for val in vals:
             if val[1]:
-            
-                msg += "skaters".center(23,"=")+"\n"
-
+                addscore = 0 
                 for player in list(ast.literal_eval(val[1])):
                     try:
                         msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']-recent_week[player]['goals']}g-{most_recent[player]['assists']-recent_week[player]['assists']}a-{most_recent[player]['fpts']-recent_week[player]['fpts']:.1f}fpts)\n"
-                        score += most_recent[player]['fpts'] - recent_week[player]['fpts']
+                        addscore += most_recent[player]['fpts'] - recent_week[player]['fpts']
                     except KeyError:
                         msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']}g-{most_recent[player]['assists']}a-{most_recent[player]['fpts']}fpts)\n"
-                        score += most_recent[player]['fpts']
-            
-            if val[2]:
-                msg += "goalies".center(23,"=")+"\n"
+                        addscore += most_recent[player]['fpts']
+                
+                score += addscore
+                msg += "skaters".center(23,"=")+f"{addscore:.1f}fpts"+"\n"
 
+            if val[2]:
+                addscore = 0
                 for player in list(ast.literal_eval(val[2])):
                     try:
                         msg += f"{most_recent_g[player]['name']} ID:{player} ({most_recent_g[player]['saves']-recent_week_g[player]['saves']}sv-{most_recent_g[player]['goals_against']-recent_week_g[player]['goals_against']}ga-{most_recent_g[player]['shutouts']-recent_week_g[player]['shutouts']}so-{most_recent_g[player]['wins']-recent_week_g[player]['wins']}w-{most_recent_g[player]['fpts']-recent_week_g[player]['fpts']:.1f}fpts)\n"
-                        score += most_recent_g[player]['fpts'] - recent_week_g[player]['fpts']
+                        addscore += most_recent_g[player]['fpts'] - recent_week_g[player]['fpts']
                     except KeyError:
                         msg += f"{most_recent_g[player]['name']} ID:{player} ({most_recent_g[player]['saves']}sv-{most_recent_g[player]['goals_against']}ga-{most_recent_g[player]['shutouts']}so-{most_recent_g[player]['wins']}w-{most_recent_g[player]['fpts']:.1f}fpts)\n"
-                        score += most_recent_g[player]['fpts']
+                        addscore += most_recent_g[player]['fpts']
+                score += addscore
+                msg += "goalies".center(23,"=")+f"{addscore:.1f}fpts"+"\n"
             if val[3]:
-                msg += "ex-players".center(23,"=")+"\n"+f"{float(val[3])}fpts"+"\n"
+                msg += "ex-players".center(23,"=")+f"{float(val[3])}fpts"+"\n"
                 score += float(val[3])
             # msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score:.1f}fpts\n" + msg
             msg = val[0].strip().center(22, "=") + f"{score:.1f}fpts\n" + msg

@@ -1287,7 +1287,7 @@ async def team(ctx, arg):
         msg = ""
 
         for val in vals:
-            msg += f"========{val[0].strip()}" + "="*(len("skaters=======") - len(val[0].strip()))+ "\n"
+            msg += "="*((len("========skaters=======") - len(val[0].strip()))//2)+ f"{val[0].strip()}" + "="*((len("========skaters=======") - len(val[0].strip()))//2) + "\n"
             
             msg += "========skaters========\n"
 
@@ -1325,7 +1325,8 @@ async def teams(ctx):
         msg = ""
 
         for val in vals:
-            msg += f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + "\n"
+            # msg += f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + "\n"
+            msg += "="*((len("========skaters=======") - len(val[0].strip()))//2)+ f"{val[0].strip()}" + "="*((len("========skaters=======") - len(val[0].strip()))//2) + f"{score:.1f}fpts\n"
 
             msg += "========skaters========\n"
 
@@ -1398,7 +1399,8 @@ async def score(ctx, arg):
                     except KeyError:
                         msg += f"{most_recent_g[player]['name']} ID:{player} ({most_recent_g[player]['saves']}sv-{most_recent_g[player]['goals_against']}ga-{most_recent_g[player]['shutouts']}so-{most_recent_g[player]['wins']}w-{most_recent_g[player]['fpts']:.1f}fpts)\n"
                         score += most_recent_g[player]['fpts']
-            msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score:.1f}fpts\n" + msg
+            # msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score:.1f}fpts\n" + msg
+            msg = "="*((len("========skaters=======") - len(val[0].strip()))//2)+ f"{val[0].strip()}" + "="*((len("========skaters=======") - len(val[0].strip()))//2) + f"{score:.1f}fpts\n" + msg
         await ctx.send(msg.strip())
     else:
         await ctx.send(f"The database is empty")
@@ -1449,7 +1451,7 @@ async def scores(ctx):
                         score += most_recent_g[player]['fpts'] - recent_week_g[player]['fpts']
                     except KeyError:
                         score += most_recent_g[player]['fpts']
-            msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score:.1f}fpts\n" + msg
+            msg = "="*((len("========skaters=======") - len(val[0].strip()))//2)+ f"{val[0].strip()}" + "="*((len("========skaters=======") - len(val[0].strip()))//2) + f"{score:.1f}fpts\n" + msg + "\n"
         await ctx.send(msg.strip())
     else:
         await ctx.send(f"The database is empty")

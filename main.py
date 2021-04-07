@@ -41,7 +41,7 @@ bot = commands.Bot(
     command_prefix="!",
     description="Fantasy league management bot",
     intents=intents,
-    help_command=commands.DefaultHelpCommand(no_category='Commands'))
+    help_command=commands.DefaultHelpCommand(no_category='Commands and arguments'))
 token = os.getenv("DISCORD_BOT_TOKEN")
 
 

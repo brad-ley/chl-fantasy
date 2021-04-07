@@ -27,7 +27,7 @@ def scrape(league='whl', testing=False):
                 "fpts": int(entry["goals"]) * 5 + int(entry["assists"]) * 3
             }
 
-        url = f'https://lscluster.hockeytech.com/feed/?feed=modulekit&view=statviewtype&type=topgoalies&key=41b145a848f4bd67&fmt=json&qualified=qualified&client_code=whl&lang=en&league_code=&season_id=273&first=0&limit={limit}&sort=active&order_direction='
+        url = f'https://lscluster.hockeytech.com/feed/?feed=modulekit&view=statviewtype&type=topgoalies&key=41b145a848f4bd67&fmt=json&qualified=&client_code=whl&lang=en&league_code=&season_id=273&first=0&limit={limit}&sort=gp&order_direction='
         response = requests.get(url)
         datalist = response.json()['SiteKit']['Statviewtype']
 
@@ -65,7 +65,7 @@ def main(testing=False):
                 "assists": entry["assists"]
             }
 
-        url = f'https://lscluster.hockeytech.com/feed/?feed=modulekit&view=statviewtype&type=topgoalies&key=41b145a848f4bd67&fmt=json&qualified=qualified&client_code=whl&lang=en&league_code=&season_id=273&first=0&limit=1000&sort=active&order_direction='
+        url = f'https://lscluster.hockeytech.com/feed/?feed=modulekit&view=statviewtype&type=topgoalies&key=41b145a848f4bd67&fmt=json&qualified=&client_code=whl&lang=en&league_code=&season_id=273&first=0&limit=1000&sort=gp&order_direction='
         response = requests.get(url)
         datalist = response.json()['SiteKit']['Statviewtype']
 

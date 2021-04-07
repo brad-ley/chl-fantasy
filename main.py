@@ -123,8 +123,10 @@ async def checktime(ctx):
         valid = 0 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour <= 23
     else:
         valid = 1 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour <= 13
+
     if not valid:
         await ctx.send("Player & goalie additions can only be made between 1 am and 1 pm Pacific time")
+
     return valid
 
 
@@ -137,12 +139,15 @@ def playermax(func):
             try:
                 players = ast.literal_eval(cur.fetchall()[0][0])
                 valid = len(players) < maxplayers
+
                 if not valid:
                     await ctx.send(f"{team} already has the maximum number of players ({maxplayers})")
+
                     return
                 await func(ctx, *args, **kwargs)
             except IndexError:
                 await func(ctx, *args, **kwargs)
+
     return decorator
 
 
@@ -155,12 +160,15 @@ def goaliemax(func):
             try:
                 players = ast.literal_eval(cur.fetchall()[0][0])
                 valid = len(players) < maxgoalies
+
                 if not valid:
                     await ctx.send(f"{team} already has the maximum number of goalies ({maxgoalies})")
+
                     return
                 await func(ctx, *args, **kwargs)
             except IndexError:
                 await func(ctx, *args, **kwargs)
+
     return decorator
 
 # async def goaliemax(ctx, *args):
@@ -283,6 +291,7 @@ async def addplayer(ctx, arg1, arg2):
         arg1 = arg1.title()
         arg2 = arg2.title()
         cur = con.cursor()
+
         if ctx.message.author.guild_permissions.administrator:
             cur.execute("select team_name, players from fantasy")
             fetched = cur.fetchall()
@@ -438,6 +447,7 @@ async def addplayer(ctx, arg1, arg2):
                 )
         else:
             await ctx.send(f"Only admins have access to this command")
+
         if added == True:
             cur.execute(
                 "select player_data from weekly order by time desc limit 1"
@@ -623,6 +633,7 @@ async def addgoalie(ctx, arg1, arg2):
                 )
         else:
             await ctx.send(f"Only admins have access to this command")
+
         if added == True:
             cur.execute(
                 "select player_data from weekly_goalie order by time desc limit 1"
@@ -801,6 +812,7 @@ async def removegoalie(ctx, arg1, arg2):
                 )
         else:
             await ctx.send(f"Only admins have access to this command")
+
         if removed == True:
             cur.execute(
                 "select player_data from weekly_goalie order by time desc limit 1"
@@ -978,6 +990,7 @@ async def removeplayer(ctx, arg1, arg2):
                 )
         else:
             await ctx.send(f"Only admins have access to this command")
+
         if removed == True:
             cur.execute(
                 "select player_data from weekly order by time desc limit 1"
@@ -1320,6 +1333,7 @@ async def score(ctx, arg):
 
         for val in vals:
             msg += f"========{val[0].strip()}========\n"
+
             if val[1]:
             
                 msg += "========skaters========\n"
@@ -1333,6 +1347,7 @@ async def score(ctx, arg):
             
             if val[2]:
                 msg += "========goalies========\n"
+
                 for player in list(ast.literal_eval(val[2])):
                     msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['games']-recent_week_g[player]['games']}g-{most_recent_g[player]['saves']-recent_week_g[player]['saves']}s-{most_recent_g[player]['fpts']-recent_week_g[player]['fpts']:.1f}fpts)\n"
                     try:
@@ -1376,6 +1391,7 @@ async def scores(ctx):
         
         for val in vals:
             score = float(val[3])
+
             if val[1]:
                 for player in list(ast.literal_eval(val[1])):
                     try:

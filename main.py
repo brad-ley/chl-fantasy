@@ -138,19 +138,21 @@ def checkowner(func):
             team = args[0].title()
             cur.execute("select owner from fantasy where team_name = %s", (team, ))
             try:
-                owner = list(ast.literal_eval(cur.fetchall()[0][0]))
+                owner = []
+                owner.append(ast.literal_eval(cur.fetchall()[0][0]))
                
-                if int(ctx.message.author.id) in owner:
+                if int(ctx.message.author.id) in owner or ctx.message.author.guild_permissions.kick_members:
                     await func(ctx, *args, **kwargs)
                 else:
-                    await ctx.send(f"{ctx.message.author.name} is not the owner of {team}. Only the owner or an admin has access to this command.")
+                    await ctx.send(f"{ctx.message.author.name} is not the owner of {team}. Only the owner or a mod has access to this command.")
                     return
 
             except (ValueError, IndexError):
-                if ctx.message.author.guild_permissions.administrator:
+                print(ctx.message.author.guild_permissions.kick_members)
+                if ctx.message.author.guild_permissions.kick_members:
                     await func(ctx, *args, **kwargs)
                 else:
-                    await ctx.send(f"{ctx.message.author.name} is not the owner of {team}. Only the owner or an admin has access to this command.")
+                    await ctx.send(f"{ctx.message.author.name} is not the owner of {team}. Only the owner or a mod has access to this command.")
 
     return decorator
 
@@ -232,7 +234,7 @@ async def rules(ctx):
              help="Adds owner <arg2> to pre-existing team <arg1>")
 async def addowner(ctx, arg1, arg2):
     arg1 = arg1.title()
-    if ctx.message.author.guild_permissions.administrator:
+    if ctx.message.author.guild_permissions.kick_members:
         with con.cursor() as cur:
             cur.execute("select team_name, owner from fantasy where team_name = %s", (arg1,))
             result = cur.fetchall()[0]
@@ -252,7 +254,7 @@ async def addowner(ctx, arg1, arg2):
             else:
                 await ctx.send(f"{arg1} is not a registered team")
     else:
-        await ctx.send(f"This command is only available to admins")
+        await ctx.send(f"This command is only available to mods")
 
 
 @bot.command(pass_context=True,
@@ -318,7 +320,7 @@ async def removeteam(ctx, arg):
                 await ctx.send(f"Team {arg} doesn't exist!")
             cur.close()
         else:
-            await ctx.send(f"Only admins have access to this command")
+            await ctx.send(f"Only mods have access to this command")
 
 
 @bot.command(pass_context=True,

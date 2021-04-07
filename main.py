@@ -118,6 +118,64 @@ def update(testing=False):
     return newest_player_stats, newest_player_stats_g
 
 
+async def checktime(ctx):
+    if testing:
+        valid = 0 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour <= 23
+    else:
+        valid = 1 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour <= 13
+    if not valid:
+        await ctx.send("Player & goalie additions can only be made between 1 am and 1 pm Pacific time")
+    return valid
+
+
+def playermax(func):
+    async def decorator(ctx, *args, **kwargs):
+        maxplayers = 10
+        team = args[0]
+        with con.cursor() as cur:
+            cur.execute("select players from fantasy where team_name = %s", (team, ))
+            try:
+                players = ast.literal_eval(cur.fetchall()[0][0])
+                valid = len(players) < maxplayers
+                if not valid:
+                    await ctx.send(f"{team} already has the maximum number of players ({maxplayers})")
+                    return
+                await func(ctx, *args, **kwargs)
+            except IndexError:
+                await func(ctx, *args, **kwargs)
+    return decorator
+
+
+def goaliemax(func):
+    async def decorator(ctx, *args, **kwargs):
+        maxgoalies = 2
+        team = args[0]
+        with con.cursor() as cur:
+            cur.execute("select goalies from fantasy where team_name = %s", (team, ))
+            try:
+                players = ast.literal_eval(cur.fetchall()[0][0])
+                valid = len(players) < maxgoalies
+                if not valid:
+                    await ctx.send(f"{team} already has the maximum number of goalies ({maxgoalies})")
+                    return
+                await func(ctx, *args, **kwargs)
+            except IndexError:
+                await func(ctx, *args, **kwargs)
+    return decorator
+
+# async def goaliemax(ctx, *args):
+#     def test(*args, **kwargs):
+#         print(args)
+#     # cur = con.cursor()
+#     # cur.execute("select goalies from fantasy where team_name = %s", (team, ))
+#     # players = cur.fetchall()[0]
+#     # valid = len(players) <= 10
+#     print(test())
+#     # if not valid:
+#     #     await ctx.send("{team} already has the maximum number of goalies")
+#     # cur.close()
+#     # return valid
+
 @tasks.loop(minutes=60)
 # @tasks.loop(seconds=30)
 async def update_scoring():
@@ -217,14 +275,15 @@ async def removeteam(ctx, arg):
              brief="[team] [player]",
              name="addplayer",
              help="Adds player (<arg1>) to team (<arg2>)")
-# @commands.is_owner()
+@commands.check(checktime)
+@playermax
 async def addplayer(ctx, arg1, arg2):
     try:
+        added = False
         arg1 = arg1.title()
         arg2 = arg2.title()
-
+        cur = con.cursor()
         if ctx.message.author.guild_permissions.administrator:
-            cur = con.cursor()
             cur.execute("select team_name, players from fantasy")
             fetched = cur.fetchall()
             all_players = sum(
@@ -262,8 +321,10 @@ async def addplayer(ctx, arg1, arg2):
                                     (curr_players, arg1))
                                 con.commit()
                                 await ctx.send(
-                                    f"{most_recent[arg2]['name']} added to team {arg1}"
+                                    f"{most_recent[arg2]['name']} (player) added to team {arg1}"
                                 )
+                                added = True
+                                player = arg2
                             else:
                                 await ctx.send(f"Cancelled")
                         else:
@@ -273,7 +334,7 @@ async def addplayer(ctx, arg1, arg2):
                                 if arg2 in list(ast.literal_eval(ii[-1]))
                             ][0]
                             await ctx.send(
-                                f"{most_recent[arg2]['name']} is already on team {team_on}"
+                                f"{most_recent[arg2]['name']} (player) is already on team {team_on}"
                             )
                     except KeyError:
                         await ctx.send(
@@ -307,8 +368,10 @@ async def addplayer(ctx, arg1, arg2):
                                         (curr_players, arg1))
                                     con.commit()
                                     await ctx.send(
-                                        f"{most_recent[pid]['name']} added to team {arg1}"
+                                        f"{most_recent[pid]['name']} (player) added to team {arg1}"
                                     )
+                                    added = True
+                                    player = pid
                                 else:
                                     await ctx.send(f"Cancelled")
                             else:
@@ -318,7 +381,7 @@ async def addplayer(ctx, arg1, arg2):
                                     if pid in list(ast.literal_eval(ii[-1]))
                                 ][0]
                                 await ctx.send(
-                                    f"{most_recent[pid]['name']} is already on team {team_on}"
+                                    f"{most_recent[pid]['name']} (player) is already on team {team_on}"
                                 )
                         else:
                             msg = f"Would you like to add one of these players to team {arg1}? If yes, reply with the number corresponding the player you'd like. If no, reply with 'n'.\n"
@@ -332,33 +395,38 @@ async def addplayer(ctx, arg1, arg2):
                                 check=lambda m: m.author == ctx.author and m.
                                 channel.id == ctx.channel.id)
 
-                            if int(msg.content) in list(
-                                    range(1,
-                                          len(indices) + 1)):
+                            try:
+                                if int(msg.content) in list(
+                                        range(1,
+                                              len(indices) + 1)):
 
-                                if not id_list[indices[int(msg.content) -
-                                                       1]] in all_players:
-                                    curr_players.append(
-                                        id_list[indices[int(msg.content) - 1]])
-                                    cur.execute(
-                                        "update fantasy set players = %s where team_name = %s",
-                                        (curr_players, arg1))
-                                    con.commit()
-                                    await ctx.send(
-                                        f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} added to team {arg1}"
-                                    )
+                                    if not id_list[indices[int(msg.content) -
+                                                           1]] in all_players:
+                                        curr_players.append(
+                                            id_list[indices[int(msg.content) - 1]])
+                                        cur.execute(
+                                            "update fantasy set players = %s where team_name = %s",
+                                            (curr_players, arg1))
+                                        con.commit()
+                                        await ctx.send(
+                                            f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} (player) added to team {arg1}"
+                                        )
+                                        added = True
+                                        player = id_list[indices[int(msg.content)-1]]
+                                    else:
+                                        team_on = [
+                                            ii[0].strip() for ii in fetched
+
+                                            if id_list[indices[int(msg.content) -
+                                                               1]] in
+                                            list(ast.literal_eval(ii[-1]))
+                                        ][0]
+                                        await ctx.send(
+                                            f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} (player) is already on team {team_on}"
+                                        )
                                 else:
-                                    team_on = [
-                                        ii[0].strip() for ii in fetched
-
-                                        if id_list[indices[int(msg.content) -
-                                                           1]] in
-                                        list(ast.literal_eval(ii[-1]))
-                                    ][0]
-                                    await ctx.send(
-                                        f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} is already on team {team_on}"
-                                    )
-                            else:
+                                    await ctx.send(f"Cancelled")
+                            except ValueError:
                                 await ctx.send(f"Cancelled")
                     else:
                         await ctx.send(
@@ -368,9 +436,20 @@ async def addplayer(ctx, arg1, arg2):
                 await ctx.send(
                     f"Error. Possible team {arg1} doesn't exist"
                 )
-            cur.close()
         else:
             await ctx.send(f"Only admins have access to this command")
+        if added == True:
+            cur.execute(
+                "select player_data from weekly order by time desc limit 1"
+            )
+            data = ast.literal_eval(cur.fetchall()[0][0])
+            new_player, _ = scrape(testing=testing)
+            data[player] = new_player[player]
+            cur.execute("insert into weekly (TIME, PLAYER_DATA) values (%s, %s)",
+                        (int(pytz.timezone(LOCAL_TZ).localize(
+                            dt.now()).timestamp()), repr(data)))
+            con.commit()
+        cur.close()
     except IndexError:
         await ctx.send(
             f"Error. Possible team {arg1} or player {arg2} doesn't exist")
@@ -380,14 +459,16 @@ async def addplayer(ctx, arg1, arg2):
              brief="[team] [goalie]",
              name="addgoalie",
              help="Adds goalie (<arg1>) to team (<arg2>)")
-# @commands.is_owner()
+@commands.check(checktime)
+@goaliemax
 async def addgoalie(ctx, arg1, arg2):
     try:
         arg1 = arg1.title()
         arg2 = arg2.title()
+        added = False
+        cur = con.cursor()
 
         if ctx.message.author.guild_permissions.administrator:
-            cur = con.cursor()
             cur.execute("select team_name, goalies from fantasy")
             fetched = cur.fetchall()
             all_players = sum(
@@ -425,8 +506,10 @@ async def addgoalie(ctx, arg1, arg2):
                                     (curr_players, arg1))
                                 con.commit()
                                 await ctx.send(
-                                    f"{most_recent[arg2]['name']} added to team {arg1}"
+                                    f"{most_recent[arg2]['name']} (goalie) added to team {arg1}"
                                 )
+                                added = True
+                                player = arg2
                             else:
                                 await ctx.send(f"Cancelled")
                         else:
@@ -436,7 +519,7 @@ async def addgoalie(ctx, arg1, arg2):
                                 if arg2 in list(ast.literal_eval(ii[-1]))
                             ][0]
                             await ctx.send(
-                                f"{most_recent[arg2]['name']} is already on team {team_on}"
+                                f"{most_recent[arg2]['name']} (goalie) is already on team {team_on}"
                             )
                     except KeyError:
                         await ctx.send(
@@ -470,8 +553,10 @@ async def addgoalie(ctx, arg1, arg2):
                                         (curr_players, arg1))
                                     con.commit()
                                     await ctx.send(
-                                        f"{most_recent[pid]['name']} added to team {arg1}"
+                                        f"{most_recent[pid]['name']} (goalie) added to team {arg1}"
                                     )
+                                    added = True
+                                    player = pid
                                 else:
                                     await ctx.send(f"Cancelled")
                             else:
@@ -481,7 +566,7 @@ async def addgoalie(ctx, arg1, arg2):
                                     if pid in list(ast.literal_eval(ii[-1]))
                                 ][0]
                                 await ctx.send(
-                                    f"{most_recent[pid]['name']} is already on team {team_on}"
+                                    f"{most_recent[pid]['name']} (goalie) is already on team {team_on}"
                                 )
                         else:
                             msg = f"Would you like to add one of these goalies to team {arg1}? If yes, reply with the number corresponding the player you'd like. If no, reply with 'n'.\n"
@@ -495,33 +580,38 @@ async def addgoalie(ctx, arg1, arg2):
                                 check=lambda m: m.author == ctx.author and m.
                                 channel.id == ctx.channel.id)
 
-                            if int(msg.content) in list(
-                                    range(1,
-                                          len(indices) + 1)):
+                            try:
+                                if int(msg.content) in list(
+                                        range(1,
+                                              len(indices) + 1)):
 
-                                if not id_list[indices[int(msg.content) -
-                                                       1]] in all_players:
-                                    curr_players.append(
-                                        id_list[indices[int(msg.content) - 1]])
-                                    cur.execute(
-                                        "update fantasy set goalies = %s where team_name = %s",
-                                        (curr_players, arg1))
-                                    con.commit()
-                                    await ctx.send(
-                                        f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} added to team {arg1}"
-                                    )
+                                    if not id_list[indices[int(msg.content) -
+                                                           1]] in all_players:
+                                        curr_players.append(
+                                            id_list[indices[int(msg.content) - 1]])
+                                        cur.execute(
+                                            "update fantasy set goalies = %s where team_name = %s",
+                                            (curr_players, arg1))
+                                        con.commit()
+                                        await ctx.send(
+                                            f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} (goalie) added to team {arg1}"
+                                        )
+                                        added = True
+                                        player = id_list[indices[int(msg.content)-1]] 
+                                    else:
+                                        team_on = [
+                                            ii[0].strip() for ii in fetched
+
+                                            if id_list[indices[int(msg.content) -
+                                                               1]] in
+                                            list(ast.literal_eval(ii[-1]))
+                                        ][0]
+                                        await ctx.send(
+                                            f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} (goalie) is already on team {team_on}"
+                                        )
                                 else:
-                                    team_on = [
-                                        ii[0].strip() for ii in fetched
-
-                                        if id_list[indices[int(msg.content) -
-                                                           1]] in
-                                        list(ast.literal_eval(ii[-1]))
-                                    ][0]
-                                    await ctx.send(
-                                        f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} is already on team {team_on}"
-                                    )
-                            else:
+                                    await ctx.send(f"Cancelled")
+                            except ValueError:
                                 await ctx.send(f"Cancelled")
                     else:
                         await ctx.send(
@@ -531,9 +621,20 @@ async def addgoalie(ctx, arg1, arg2):
                 await ctx.send(
                     f"Error. Possible team {arg1} doesn't exist"
                 )
-            cur.close()
         else:
             await ctx.send(f"Only admins have access to this command")
+        if added == True:
+            cur.execute(
+                "select player_data from weekly_goalie order by time desc limit 1"
+            )
+            data = ast.literal_eval(cur.fetchall()[0][0])
+            _, new_player = scrape(testing=testing)
+            data[player] = new_player[player]
+            cur.execute("insert into weekly_goalie (TIME, PLAYER_DATA) values (%s, %s)",
+                        (int(pytz.timezone(LOCAL_TZ).localize(
+                            dt.now()).timestamp()), repr(data)))
+            con.commit()
+        cur.close()
     except IndexError:
         await ctx.send(
             f"Error. Possible team {arg1} or player {arg2} doesn't exist")
@@ -542,7 +643,7 @@ async def addgoalie(ctx, arg1, arg2):
              brief="[team] [player]",
              name="removegoalie",
              help="Removes goalie (<arg1>) from team (<arg2>)")
-# @commands.is_owner()
+@commands.check(checktime)
 async def removegoalie(ctx, arg1, arg2):
     try:
         arg1 = arg1.title()
@@ -587,8 +688,10 @@ async def removegoalie(ctx, arg1, arg2):
                                     (curr_players, arg1))
                                 con.commit()
                                 await ctx.send(
-                                    f"{most_recent[arg2]['name']} removed from team {arg1}"
+                                    f"{most_recent[arg2]['name']} (goalie) removed from team {arg1}"
                                 )
+                                removed = True
+                                player = arg2
                             else:
                                 await ctx.send(f"Cancelled")
                         else:
@@ -631,8 +734,10 @@ async def removegoalie(ctx, arg1, arg2):
                                         (curr_players, arg1))
                                     con.commit()
                                     await ctx.send(
-                                        f"{most_recent[pid]['name']} removed from team {arg1}"
+                                        f"{most_recent[pid]['name']} (goalie) removed from team {arg1}"
                                     )
+                                    removed = True
+                                    player = pid
                                 else:
                                     await ctx.send(f"Cancelled")
                             else:
@@ -654,33 +759,37 @@ async def removegoalie(ctx, arg1, arg2):
                                 "message",
                                 check=lambda m: m.author == ctx.author and m.
                                 channel.id == ctx.channel.id)
+                            try:
+                                if int(msg.content) in list(
+                                        range(1,
+                                              len(indices) + 1)):
 
-                            if int(msg.content) in list(
-                                    range(1,
-                                          len(indices) + 1)):
-
-                                if id_list[indices[int(msg.content) -
-                                                       1]] in curr_players:
-                                    curr_players.remove(
-                                        id_list[indices[int(msg.content) - 1]])
-                                    cur.execute(
-                                        "update fantasy set goalies = %s where team_name = %s",
-                                        (curr_players, arg1))
-                                    con.commit()
-                                    await ctx.send(
-                                        f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} removed from team {arg1}"
-                                    )
+                                    if id_list[indices[int(msg.content) -
+                                                           1]] in curr_players:
+                                        curr_players.remove(
+                                            id_list[indices[int(msg.content) - 1]])
+                                        cur.execute(
+                                            "update fantasy set goalies = %s where team_name = %s",
+                                            (curr_players, arg1))
+                                        con.commit()
+                                        await ctx.send(
+                                            f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} (goalie) removed from team {arg1}"
+                                        )
+                                        removed = True
+                                        player = id_list[indices[int(msg.content)-1]]
+                                    else:
+                                        # team_on = [
+                                        #     ii[0].strip() for ii in fetched
+                                        #     if id_list[indices[int(msg.content) -
+                                        #                        1]] in
+                                        #     list(ast.literal_eval(ii[-1]))
+                                        # ][0]
+                                        await ctx.send(
+                                            f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} is not on team {arg1}"
+                                        )
                                 else:
-                                    # team_on = [
-                                    #     ii[0].strip() for ii in fetched
-                                    #     if id_list[indices[int(msg.content) -
-                                    #                        1]] in
-                                    #     list(ast.literal_eval(ii[-1]))
-                                    # ][0]
-                                    await ctx.send(
-                                        f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} is not on team {arg1}"
-                                    )
-                            else:
+                                    await ctx.send(f"Cancelled")
+                            except ValueError:
                                 await ctx.send(f"Cancelled")
                     else:
                         await ctx.send(
@@ -690,25 +799,40 @@ async def removegoalie(ctx, arg1, arg2):
                 await ctx.send(
                     f"Error. Possible team {arg1} doesn't exist"
                 )
-            cur.close()
         else:
             await ctx.send(f"Only admins have access to this command")
+        if removed == True:
+            cur.execute(
+                "select player_data from weekly_goalie order by time desc limit 1"
+            )
+            recent_week = ast.literal_eval(cur.fetchall()[0][0])
+            cur.execute(
+                "select player_data from goalies order by time desc limit 1"
+            )
+            current_data = ast.literal_eval(cur.fetchall()[0][0])
+            cur.execute("select old_player_score from fantasy where team_name = %s", (arg1, ))
+            old_score = float(cur.fetchall()[0][0])
+
+            cur.execute("update fantasy set old_player_score = %s",(current_data[player]['fpts']-recent_week[player]['fpts']+old_score, ))
+            con.commit()
+        cur.close()
     except IndexError:
         await ctx.send(
-            f"Error. Possible team {arg1} or player {arg2} doesn't exist")
+            f"Error. Possible team {arg1} doesn't exist")
 
 @bot.command(pass_context=True,
              brief="[team] [player]",
              name="removeplayer",
              help="Removes player (<arg1>) from team (<arg2>)")
-# @commands.is_owner()
+@commands.check(checktime)
 async def removeplayer(ctx, arg1, arg2):
     try:
         arg1 = arg1.title()
         arg2 = arg2.title()
+        removed = False
+        cur = con.cursor()
 
         if ctx.message.author.guild_permissions.administrator:
-            cur = con.cursor()
             cur.execute("select team_name, players from fantasy")
             fetched = cur.fetchall()
             all_players = sum(
@@ -746,8 +870,10 @@ async def removeplayer(ctx, arg1, arg2):
                                     (curr_players, arg1))
                                 con.commit()
                                 await ctx.send(
-                                    f"{most_recent[arg2]['name']} removed from team {arg1}"
+                                    f"{most_recent[arg2]['name']} (player) removed from team {arg1}"
                                 )
+                                removed = True
+                                player = arg2
                             else:
                                 await ctx.send(f"Cancelled")
                         else:
@@ -756,7 +882,7 @@ async def removeplayer(ctx, arg1, arg2):
                             #     if arg2 in list(ast.literal_eval(ii[-1]))
                             # ][0]
                             await ctx.send(
-                                f"{most_recent[arg2]['name']} is not on team {arg1}"
+                                f"{most_recent[arg2]['name']} (player) is not on team {arg1}"
                             )
                     except KeyError:
                         await ctx.send(
@@ -790,8 +916,10 @@ async def removeplayer(ctx, arg1, arg2):
                                         (curr_players, arg1))
                                     con.commit()
                                     await ctx.send(
-                                        f"{most_recent[pid]['name']} removed from team {arg1}"
+                                        f"{most_recent[pid]['name']} (player) removed from team {arg1}"
                                     )
+                                    removed = True
+                                    player = pid
                                 else:
                                     await ctx.send(f"Cancelled")
                             else:
@@ -805,41 +933,40 @@ async def removeplayer(ctx, arg1, arg2):
                         else:
                             msg = f"Would you like to remove one of these players to team {arg1}? If yes, reply with the number corresponding the player you'd like. If no, reply with 'n'.\n"
 
-                            for select, idx in enumerate(indices):
-                                pid = id_list[idx]
-                                msg += f"{select+1}: {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['goals']}a-{most_recent[pid]['assists']}a-{most_recent[pid]['fpts']:.1f}fpts)\n"
-                            await ctx.send(msg)
-                            msg = await bot.wait_for(
-                                "message",
-                                check=lambda m: m.author == ctx.author and m.
-                                channel.id == ctx.channel.id)
+                            try:
+                                for select, idx in enumerate(indices):
+                                    pid = id_list[idx]
+                                    msg += f"{select+1}: {most_recent[pid]['name']} ID:{pid} ({most_recent[pid]['goals']}a-{most_recent[pid]['assists']}a-{most_recent[pid]['fpts']:.1f}fpts)\n"
+                                await ctx.send(msg)
+                                msg = await bot.wait_for(
+                                    "message",
+                                    check=lambda m: m.author == ctx.author and m.
+                                    channel.id == ctx.channel.id)
 
-                            if int(msg.content) in list(
-                                    range(1,
-                                          len(indices) + 1)):
+                                if int(msg.content) in list(
+                                        range(1,
+                                              len(indices) + 1)):
 
-                                if id_list[indices[int(msg.content) -
-                                                       1]] in curr_players:
-                                    curr_players.remove(
-                                        id_list[indices[int(msg.content) - 1]])
-                                    cur.execute(
-                                        "update fantasy set players = %s where team_name = %s",
-                                        (curr_players, arg1))
-                                    con.commit()
-                                    await ctx.send(
-                                        f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} removed from team {arg1}"
-                                    )
+                                    if id_list[indices[int(msg.content) -
+                                                           1]] in curr_players:
+                                        curr_players.remove(
+                                            id_list[indices[int(msg.content) - 1]])
+                                        cur.execute(
+                                            "update fantasy set players = %s where team_name = %s",
+                                            (curr_players, arg1))
+                                        con.commit()
+                                        await ctx.send(
+                                            f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} (player) removed from team {arg1}"
+                                        )
+                                        removed = True
+                                        player = id_list[indices[int(msg.content)-1]]
+                                    else:
+                                        await ctx.send(
+                                            f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} (player) is not on team {arg1}"
+                                        )
                                 else:
-                                    # team_on = [
-                                    #     ii[0].strip() for ii in fetched
-                                    #     if id_list[indices[int(msg.content) -
-                                    #                        1]] in
-                                    #     list(ast.literal_eval(ii[-1]))
-                                    # ][0]
-                                    await ctx.send(
-                                        f"{most_recent[id_list[indices[int(msg.content)-1]]]['name']} is not on team {arg1}"
-                                    )
-                            else:
+                                    await ctx.send(f"Cancelled")
+                            except ValueError:
                                 await ctx.send(f"Cancelled")
                     else:
                         await ctx.send(
@@ -849,12 +976,26 @@ async def removeplayer(ctx, arg1, arg2):
                 await ctx.send(
                     f"Error. Possible team {arg1} doesn't exist"
                 )
-            cur.close()
         else:
             await ctx.send(f"Only admins have access to this command")
+        if removed == True:
+            cur.execute(
+                "select player_data from weekly order by time desc limit 1"
+            )
+            recent_week = ast.literal_eval(cur.fetchall()[0][0])
+            cur.execute(
+                "select player_data from players order by time desc limit 1"
+            )
+            current_data = ast.literal_eval(cur.fetchall()[0][0])
+            cur.execute("select old_player_score from fantasy where team_name = %s", (arg1, ))
+            old_score = float(cur.fetchall()[0][0])
+
+            cur.execute("update fantasy set old_player_score = %s",(current_data[player]['fpts']-recent_week[player]['fpts']+old_score, ))
+            con.commit()
+        cur.close()
     except IndexError:
         await ctx.send(
-            f"Error. Possible team {arg1} or player {arg2} doesn't exist")
+            f"Error. Possible team {arg1} doesn't exist")
 
 @bot.command(pass_context=True,
              brief="[player]",
@@ -1008,7 +1149,7 @@ async def players(ctx):
    
     stats_list = list(stats.items())
     stats_list.sort(key=lambda x: x[-1]['fpts'], reverse=True)
-    n = 50
+    n = 40
 
     for idx, _ in enumerate(stats_list):
         msg = ""
@@ -1178,15 +1319,20 @@ async def score(ctx, arg):
         score = 0
 
         for val in vals:
+            msg += f"========{val[0].strip()}========\n"
             if val[1]:
+            
+                msg += "========skaters========\n"
+
                 for player in list(ast.literal_eval(val[1])):
                     msg += f"{most_recent[player]['name']} ({most_recent[player]['goals']-recent_week[player]['goals']}g-{most_recent[player]['assists']-recent_week[player]['assists']}a-{most_recent[player]['fpts']-recent_week[player]['fpts']:.1f}fpts)\n"
                     try:
                         score += most_recent[player]['fpts'] - recent_week[player]['fpts']
                     except KeyError:
                         score += most_recent[player]['fpts']
-
+            
             if val[2]:
+                msg += "========goalies========\n"
                 for player in list(ast.literal_eval(val[2])):
                     msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['games']-recent_week_g[player]['games']}g-{most_recent_g[player]['saves']-recent_week_g[player]['saves']}s-{most_recent_g[player]['fpts']-recent_week_g[player]['fpts']:.1f}fpts)\n"
                     try:
@@ -1206,7 +1352,7 @@ async def score(ctx, arg):
              help="Displays weekly scores for all teams")
 async def scores(ctx):
     cur = con.cursor()
-    cur.execute("select team_name, players, goalies from fantasy")
+    cur.execute("select team_name, players, goalies, old_player_score from fantasy")
     vals = cur.fetchall() 
     cur.execute(
         "select player_data from players order by time desc limit 1"
@@ -1224,12 +1370,12 @@ async def scores(ctx):
         "select player_data from weekly_goalie order by time desc limit 1"
     )
     recent_week_g = ast.literal_eval(cur.fetchall()[0][0])
-
+    
     if vals:
         msg = ""
-        score = 0
         
         for val in vals:
+            score = float(val[3])
             if val[1]:
                 for player in list(ast.literal_eval(val[1])):
                     try:

@@ -122,16 +122,20 @@ def update(testing=False):
     return newest_player_stats, newest_player_stats_g
 
 
-async def checktime(ctx):
-    if testing:
-        valid = 0 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour <= 23
-    else:
-        valid = 0 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour < 14
+def checktime(func):
+    async def decorator(ctx, *args, **kwargs):
+        if testing:
+            valid = 0 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour <= 23
+        else:
+            valid = 0 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour < 14
+        
+        if not valid:
+            await ctx.send("Player & goalie additions can only be made between midnight and 2 pm Pacific time")
+            return 
 
-    if not valid:
-        await ctx.send("Player & goalie additions can only be made between midnight and 2 pm Pacific time")
+        await func(ctx, *args, **kwargs)
 
-    return valid
+    return decorator
 
 
 def checkowner(func):
@@ -150,7 +154,6 @@ def checkowner(func):
                     return
 
             except (ValueError, IndexError):
-                print(ctx.message.author.guild_permissions.kick_members)
                 if ctx.message.author.guild_permissions.kick_members:
                     await func(ctx, *args, **kwargs)
                 else:
@@ -330,7 +333,7 @@ async def removeteam(ctx, arg):
              name="addplayer",
              help="Adds player (<arg1>) to team (<arg2>)")
 @checkowner
-@commands.check(checktime)
+@checktime
 @playermax
 async def addplayer(ctx, arg1, arg2):
     try:
@@ -516,7 +519,7 @@ async def addplayer(ctx, arg1, arg2):
              name="addgoalie",
              help="Adds goalie (<arg1>) to team (<arg2>)")
 @checkowner
-@commands.check(checktime)
+@checktime
 @goaliemax
 async def addgoalie(ctx, arg1, arg2):
     try:
@@ -701,7 +704,7 @@ async def addgoalie(ctx, arg1, arg2):
              name="removegoalie",
              help="Removes goalie (<arg1>) from team (<arg2>)")
 @checkowner
-@commands.check(checktime)
+@checktime
 async def removegoalie(ctx, arg1, arg2):
     try:
         arg1 = arg1.title()
@@ -883,7 +886,7 @@ async def removegoalie(ctx, arg1, arg2):
              name="removeplayer",
              help="Removes player (<arg1>) from team (<arg2>)")
 @checkowner
-@commands.check(checktime)
+@checktime
 async def removeplayer(ctx, arg1, arg2):
     try:
         arg1 = arg1.title()

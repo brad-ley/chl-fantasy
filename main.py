@@ -119,6 +119,7 @@ def update(testing=False):
 
 
 async def checktime(ctx):
+    print(pytz.timezone(LOCAL_TZ).localize(dt.now()))
     if testing:
         valid = 0 <= pytz.timezone(LOCAL_TZ).localize(dt.now()).hour <= 23
     else:

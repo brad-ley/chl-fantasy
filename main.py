@@ -1354,7 +1354,7 @@ async def score(ctx, arg):
                         score += most_recent_g[player]['fpts'] - recent_week_g[player]['fpts']
                     except KeyError:
                         score += most_recent_g[player]['fpts'] - recent_week_g[player]['fpts']
-            msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score}fpts\n" + msg
+            msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score:.1}fpts\n" + msg
         await ctx.send(msg.strip())
     else:
         await ctx.send(f"The database is empty")
@@ -1405,7 +1405,7 @@ async def scores(ctx):
                         score += most_recent_g[player]['fpts'] - recent_week_g[player]['fpts']
                     except KeyError:
                         score += most_recent_g[player]['fpts']
-            msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score}fpts\n" + msg
+            msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score:.1f}fpts\n" + msg
         await ctx.send(msg.strip())
     else:
         await ctx.send(f"The database is empty")

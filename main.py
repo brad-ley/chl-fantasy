@@ -74,6 +74,8 @@ def update(testing=False):
             "insert into weekly (TIME, PLAYER_DATA) values (%s, %s)",
             (int(pytz.timezone(LOCAL_TZ).localize(
                 dt.now()).timestamp()), repr(data)))
+        cur.execute("update fantasy set owner = %s where team_name = %s", (owner, arg1))
+        cur.execute("update fantasy set old_player_score = %s",(0,))
 
     cur.execute("SELECT count(*) FROM (SELECT 1 FROM weekly_goalie LIMIT 1) AS t;")
     weekly_empty_g = not cur.fetchall()[0][0]
@@ -1351,7 +1353,7 @@ async def teams(ctx):
 async def score(ctx, arg):
     arg = arg.title()
     cur = con.cursor()
-    cur.execute("select team_name, players, goalies from fantasy where team_name = %s",
+    cur.execute("select team_name, players, goalies, old_player_score from fantasy where team_name = %s",
                 (arg, ))
     vals = cur.fetchall() 
     cur.execute(
@@ -1399,6 +1401,9 @@ async def score(ctx, arg):
                     except KeyError:
                         msg += f"{most_recent_g[player]['name']} ID:{player} ({most_recent_g[player]['saves']}sv-{most_recent_g[player]['goals_against']}ga-{most_recent_g[player]['shutouts']}so-{most_recent_g[player]['wins']}w-{most_recent_g[player]['fpts']:.1f}fpts)\n"
                         score += most_recent_g[player]['fpts']
+            if val[3]:
+                msg += "ex-players".center(23,"=")+"\n"+f"{float(val[3])}fpts"+"\n"
+                score += float(val[3])
             # msg = f"========{val[0].strip()}" + "="*(len("skaters=======")-len(val[0].strip())) + f"{score:.1f}fpts\n" + msg
             msg = val[0].strip().center(22, "=") + f"{score:.1f}fpts\n" + msg
         await ctx.send(msg.strip())

@@ -1344,7 +1344,7 @@ async def teams(ctx):
                 for player in list(ast.literal_eval(val[2])):
                     msg += f"{most_recent_g[player]['name']} ({most_recent_g[player]['saves']}s-{most_recent_g[player]['fpts']:.1f}fpts)\n"
             msg += "\n"
-        for ii in range(len(msg) // 2000):
+        for ii in range(len(msg) // 2000 + 1):
             await ctx.send(msg[ii:ii+2000])
     else:
         await ctx.send(f"The database is empty")
